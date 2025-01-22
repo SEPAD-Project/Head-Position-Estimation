@@ -46,8 +46,10 @@ while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         break
-
+    
     yaw, pitch = yaw_pitch(frame=frame)
+    if yaw is None and pitch is None:
+        continue
 
     if len(calibration_points) < 2:
         draw_calibration_guides(frame, len(calibration_points))
