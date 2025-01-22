@@ -33,14 +33,12 @@ while cap.isOpened():
                 connection_drawing_spec=drawing_spec
             )
 
-            # Extract key landmarks
             landmarks = face_landmarks.landmark
             nose_tip = landmarks[1]
             chin = landmarks[152]
             left_eye_outer = landmarks[33]
             right_eye_outer = landmarks[263]
 
-            # Convert normalized coordinates to pixel values
             nose_tip = (int(nose_tip.x * frame_width), int(nose_tip.y * frame_height))
             chin = (int(chin.x * frame_width), int(chin.y * frame_height))
             left_eye_outer = (int(left_eye_outer.x * frame_width), int(left_eye_outer.y * frame_height))
