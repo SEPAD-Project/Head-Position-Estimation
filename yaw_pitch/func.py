@@ -4,18 +4,24 @@
 import cv2
 import mediapipe as mp
 
-def yaw_pitch(image_path):
+def yaw_pitch(image_path=None, frame=None):
     mp_face_mesh = mp.solutions.face_mesh
-    face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+    face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1, refine_landmarks=False, min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
     mp_drawing = mp.solutions.drawing_utils
     drawing_spec = mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=1, circle_radius=1)
     
-    try:
-        image = cv2.imread(image_path)
-    except FileNotFoundError:
-        return "Could not find the image."
-    
+    if image_path is not None:
+        try:
+            image = cv2.imread(image_path)
+        except FileNotFoundError:
+            return "Could not find the image."
+    elif frame is not None:
+        image = frame.copy()
+    else:
+        return "No image or frame provided."
+        
+    image = cv2.flip(image, 1)
     image_height, image_width, _ = image.shape
     rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
@@ -38,7 +44,6 @@ def yaw_pitch(image_path):
             left_eye_outer = landmarks[33]
             right_eye_outer = landmarks[263]
 
-            # Convert normalized coordinates to pixel values
             nose_tip = (int(nose_tip.x * image_width), int(nose_tip.y * image_height))
             chin = (int(chin.x * image_width), int(chin.y * image_height))
             left_eye_outer = (int(left_eye_outer.x * image_width), int(left_eye_outer.y * image_height))

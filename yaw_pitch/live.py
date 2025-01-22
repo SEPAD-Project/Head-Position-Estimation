@@ -1,5 +1,5 @@
 #by parsasafaie
-#this code shows a live webcam feed with detected face landmarks and yaw and pitch angles
+#this script shows a live webcam feed with detected face landmarks and yaw and pitch angles
 
 import cv2
 import mediapipe as mp

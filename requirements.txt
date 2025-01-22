@@ -1,2 +1,3 @@
 opencv-python==4.11.0.86
 mediapipe==0.10.11
+screeninfo==0.8.1
