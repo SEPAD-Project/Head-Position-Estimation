@@ -3,23 +3,18 @@
 
 import cv2
 import mediapipe as mp
-from screeninfo import get_monitors
 import sys
 import os
 import time
 
-sys.path.append(os.path.abspath("."))
+sys.path.append(os.path.abspath(".."))
 
 from yaw_pitch.func import yaw_pitch
-
 
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(
     static_image_mode=False, max_num_faces=1, refine_landmarks=True,
     min_detection_confidence=0.5, min_tracking_confidence=0.5)
-
-screen = get_monitors()[0]
-screen_width, screen_height = screen.width, screen.height
 
 cap = cv2.VideoCapture(0)
 
