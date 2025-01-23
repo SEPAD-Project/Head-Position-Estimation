@@ -1,5 +1,5 @@
 #by parsasafaie
-#the function returns the yaw and pitch angles of the face in the given image
+#the function returns the yaw and pitch angles of the face in the given image or frame.
 
 import cv2
 import mediapipe as mp
