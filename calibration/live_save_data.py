@@ -1,11 +1,13 @@
 #by parsasafaie
-#this script collects yaw and pitch for monitor corners, then shows that student is looking to monitor or no.
+#this script collects the head pose data for monitor corners and saves the data to data.txt
 
 import cv2
 import mediapipe as mp
 import sys
 import os
 import time
+
+saved_data_path = "data.txt"
 
 sys.path.append(os.path.abspath("."))
 
@@ -28,15 +30,6 @@ def draw_calibration_guides(frame, point_count):
     elif point_count == 1:
         cv2.putText(frame, "Turn your head to the BOTTOM-RIGHT corner and press 'C'", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-
-def draw_student_position(frame, yaw, pitch, area):
-    if area:
-        if area['yaw_min'] <= yaw <= area['yaw_max'] and area['pitch_min'] <= pitch <= area['pitch_max']:
-            cv2.putText(frame, "Looking at Monitor", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-        else:
-            cv2.putText(frame, "Not Looking at Monitor", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-
-
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
@@ -52,21 +45,14 @@ while cap.isOpened():
         if key == ord('c'):
             calibration_points.append((yaw, pitch))
 
-    if len(calibration_points) == 2 and not calibrated_area:
-        yaw_min, yaw_max = sorted([calibration_points[0][0], calibration_points[1][0]])
-        pitch_min, pitch_max = sorted([calibration_points[0][1], calibration_points[1][1]])
+    if len(calibration_points) == 2:
+        with open(saved_data_path, 'w') as f:
+            f.write(str(calibration_points))
 
-        calibrated_area = {
-            "yaw_min": yaw_min,
-            "yaw_max": yaw_max,
-            "pitch_min": pitch_min,
-            "pitch_max": pitch_max,
-        }
+        cv2.putText(frame, "Calibration points saved to " + saved_data_path + '.', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+        cv2.putText(frame, 'you can now quit the program with press q.', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-    if calibrated_area:
-        draw_student_position(frame, yaw, pitch, calibrated_area)
-
-    cv2.imshow('Live Monitor Calibration', frame)
+    cv2.imshow('Live Save Monitor Calibration Data', frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
