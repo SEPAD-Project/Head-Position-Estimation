@@ -1,8 +1,7 @@
 #by parsasafaie
-#this script collects the head pose data for monitor corners and saves the data to data.txt
+#this script collects the head pose data for monitor corners from live webcam and saves the data to data.txt
 
 import cv2
-import mediapipe as mp
 import sys
 import os
 import time
@@ -13,16 +12,9 @@ sys.path.append(os.path.abspath("."))
 
 from yaw_pitch.func import yaw_pitch
 
-mp_face_mesh = mp.solutions.face_mesh
-face_mesh = mp_face_mesh.FaceMesh(
-    static_image_mode=False, max_num_faces=1, refine_landmarks=True,
-    min_detection_confidence=0.5, min_tracking_confidence=0.5)
-
 cap = cv2.VideoCapture(0)
 
 calibration_points = []
-calibrated_area = None
-
 
 def draw_calibration_guides(frame, point_count):
     if point_count == 0:
