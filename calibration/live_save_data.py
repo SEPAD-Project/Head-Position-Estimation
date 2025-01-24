@@ -12,7 +12,11 @@ sys.path.append(os.path.abspath("."))
 
 from yaw_pitch.func import yaw_pitch
 
-cap = cv2.VideoCapture(0)
+try:
+    cap = cv2.VideoCapture(0)
+except:
+    print("No camera found.")
+    sys.exit()
 
 calibration_points = []
 
@@ -27,7 +31,15 @@ while cap.isOpened():
     if not ret:
         break
     
-    yaw, pitch = yaw_pitch(frame=frame)
+    result = yaw_pitch(frame=frame)
+
+    if type(result) is tuple:
+        yaw = result[0]
+        pitch = result[1]
+    else:
+        print(result)
+        sys.exit()
+        
     if yaw is None and pitch is None:
         continue
 

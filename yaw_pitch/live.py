@@ -3,16 +3,31 @@
 
 import cv2
 from func import yaw_pitch
+import sys
 
-cap = cv2.VideoCapture(0)
+try:
+    cap = cv2.VideoCapture(0)
+except:
+    print("No camera found.")
+    sys.exit()
 
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         break
- 
     
-    yaw, pitch = yaw_pitch(frame=frame)
+    result = yaw_pitch(frame=frame)
+
+    if type(result) is tuple:
+        yaw = result[0]
+        pitch = result[1]
+    else:
+        print(result)
+        sys.exit()
+    
+    if yaw in None and pitch is None:
+        continue
+    
     yaw_direction = "Left" if yaw > 0 else "Right"
     pitch_direction = "Down" if pitch < 0 else "Up"
 

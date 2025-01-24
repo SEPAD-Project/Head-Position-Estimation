@@ -16,7 +16,11 @@ face_mesh = mp_face_mesh.FaceMesh(
     static_image_mode=False, max_num_faces=1, refine_landmarks=True,
     min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
-cap = cv2.VideoCapture(0)
+try:
+    cap = cv2.VideoCapture(0)
+except:
+    print("No camera found.")
+    sys.exit()
 
 calibration_points = []
 calibrated_area = None
@@ -42,7 +46,15 @@ while cap.isOpened():
     if not ret:
         break
     
-    yaw, pitch = yaw_pitch(frame=frame)
+    result = yaw_pitch(frame=frame)
+
+    if type(result) is tuple:
+        yaw = result[0]
+        pitch = result[1]
+    else:
+        print(result)
+        sys.exit()
+
     if yaw is None and pitch is None:
         continue
 

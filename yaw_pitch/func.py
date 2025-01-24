@@ -12,9 +12,8 @@ def yaw_pitch(image_path=None, frame=None):
     drawing_spec = mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=1, circle_radius=1)
     
     if image_path is not None:
-        try:
-            image = cv2.imread(image_path)
-        except FileNotFoundError:
+        image = cv2.imread(image_path)
+        if image is None:
             return "Could not find the image."
     elif frame is not None:
         image = frame.copy()
