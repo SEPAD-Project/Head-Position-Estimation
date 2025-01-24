@@ -25,7 +25,7 @@ while cap.isOpened():
         print(result)
         sys.exit()
     
-    if yaw in None and pitch is None:
+    if yaw is None and pitch is None:
         continue
     
     yaw_direction = "Left" if yaw > 0 else "Right"
