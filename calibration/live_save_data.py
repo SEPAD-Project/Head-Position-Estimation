@@ -3,14 +3,15 @@
 
 import cv2
 import sys
-import os
 import time
+from pathlib import Path
 
 saved_data_path = "data.txt"
 
-sys.path.append(os.path.abspath("."))
+parent_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(parent_dir / "yaw_pitch"))
 
-from yaw_pitch.func import yaw_pitch
+from func import yaw_pitch
 
 try:
     cap = cv2.VideoCapture(0)
