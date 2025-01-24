@@ -2,7 +2,7 @@
 #this script shows a live webcam feed with detected face landmarks and yaw and pitch angles
 
 import cv2
-from func import yaw_pitch
+from func_yaw_pitch import yaw_pitch
 import sys
 
 try:

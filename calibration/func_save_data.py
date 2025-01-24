@@ -7,7 +7,7 @@ from pathlib import Path
 parent_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(parent_dir / "yaw_pitch"))
 
-from func import yaw_pitch
+from func_yaw_pitch import yaw_pitch
 
 def save_calibration_data(file_path="data.txt", top_left_img_path=None, top_left_frame=None, bottom_right_img_path=None, bottom_right_frame=None): 
 

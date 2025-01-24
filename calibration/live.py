@@ -9,7 +9,7 @@ from pathlib import Path
 parent_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(parent_dir / "yaw_pitch"))
 
-from func import yaw_pitch
+from func_yaw_pitch import yaw_pitch
 
 try:
     cap = cv2.VideoCapture(0)
