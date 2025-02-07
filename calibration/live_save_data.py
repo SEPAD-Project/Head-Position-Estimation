@@ -47,21 +47,6 @@ while cap.isOpened():
     if not ret:
         break
 
-    # Get yaw and pitch values using the yaw_pitch function
-    result = yaw_pitch(frame=frame)
-    
-    if type(result) is tuple:
-        yaw = result[0]
-        pitch = result[1]
-    else:
-        # If the result is not valid, print the error and exit
-        print(result)
-        sys.exit()
-    
-    # Skip frames where yaw and pitch values are not detected
-    if yaw is None and pitch is None:
-        continue
-
     # Handle calibration for two points (TOP-LEFT and BOTTOM-RIGHT corners)
     if len(calibration_points) < 2:
         # Display instructions for the current calibration step
@@ -69,7 +54,23 @@ while cap.isOpened():
         key = cv2.waitKey(1) & 0xFF
         if key == ord('c'):
             # Save the current yaw and pitch values as a calibration point
-            calibration_points.append((yaw, pitch))
+
+            # Get yaw and pitch values using the yaw_pitch function
+            result = yaw_pitch(frame=frame)
+            
+            if type(result) is tuple:
+                yaw = result[0]
+                pitch = result[1]
+                depth = result[2]
+            else:
+                # If the result is not valid, print the error and exit
+                print(result)
+                sys.exit()
+            
+            # Skip frames where yaw and pitch values are not detected
+            if yaw is None and pitch is None:
+                continue
+            calibration_points.append((yaw, pitch, depth))
 
     # Save the calibration data to a file after collecting two points
     if len(calibration_points) == 2:

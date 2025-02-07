@@ -66,6 +66,7 @@ def save_calibration_data(file_path: str = "data.txt",
         if type(result) is tuple:
             yaw = result[0]
             pitch = result[1]
+            depth = result[2]
         else:
             # If yaw_pitch returns a string, it indicates an error
             return result
@@ -75,7 +76,7 @@ def save_calibration_data(file_path: str = "data.txt",
             return "Error while detecting face."
         
         # Append the collected yaw and pitch data to the list
-        calibration_points.append((yaw, pitch))
+        calibration_points.append((yaw, pitch, depth))
     
     # Attempt to write the collected data to the specified file
     try:
