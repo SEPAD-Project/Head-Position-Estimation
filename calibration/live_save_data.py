@@ -27,7 +27,7 @@ except:
     sys.exit()
 
 # List to store calibration points (yaw and pitch values for corners)
-calibration_points = []
+calibration_data = []
 
 # Function to draw calibration instructions on the video feed
 def draw_calibration_guides(frame, point_count):
@@ -48,9 +48,9 @@ while cap.isOpened():
         break
 
     # Handle calibration for two points (TOP-LEFT and BOTTOM-RIGHT corners)
-    if len(calibration_points) < 2:
+    if len(calibration_data) < 2:
         # Display instructions for the current calibration step
-        draw_calibration_guides(frame, len(calibration_points))
+        draw_calibration_guides(frame, len(calibration_data))
         key = cv2.waitKey(1) & 0xFF
         if key == ord('c'):
             # Save the current yaw and pitch values as a calibration point
@@ -70,12 +70,12 @@ while cap.isOpened():
             # Skip frames where yaw and pitch values are not detected
             if yaw is None and pitch is None:
                 continue
-            calibration_points.append((yaw, pitch, depth))
+            calibration_data.append((yaw, pitch, depth))
 
     # Save the calibration data to a file after collecting two points
-    if len(calibration_points) == 2:
+    if len(calibration_data) == 2:
         with open(saved_data_path, 'w') as f:
-            f.write(str(calibration_points))
+            f.write(str(calibration_data))
         
         # Notify the user that the data has been saved
         cv2.putText(frame, "Calibration points saved to " + saved_data_path + '.', 

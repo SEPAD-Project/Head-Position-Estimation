@@ -29,7 +29,7 @@ def looking_result(data_path, image_path=None, frame=None):
     # Attempt to read calibration points from the specified file
     try:
         with open(data_path, 'r') as f:
-            calibration_points = eval(f.readlines()[0])  # Load calibration points as a list
+            calibration_data = eval(f.readlines()[0])  # Load calibration points as a list
     except FileNotFoundError:
         return "File for reading data not found."
 
@@ -63,8 +63,8 @@ def looking_result(data_path, image_path=None, frame=None):
         return "Error while detecting face."
     
     # Extract and sort calibration point ranges for yaw and pitch
-    yaw_min, yaw_max = sorted([calibration_points[0][0], calibration_points[1][0]])
-    pitch_min, pitch_max = sorted([calibration_points[0][1], calibration_points[1][1]])
+    yaw_min, yaw_max = sorted([calibration_data[0][0], calibration_data[1][0]])
+    pitch_min, pitch_max = sorted([calibration_data[0][1], calibration_data[1][1]])
 
     # Check if the calculated yaw and pitch fall within the calibrated area
     if yaw_min <= yaw <= yaw_max and pitch_min <= pitch <= pitch_max:
