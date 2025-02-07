@@ -36,7 +36,7 @@ def save_calibration_data(file_path: str = "data.txt",
     options = [top_left_img_path, top_left_frame, bottom_right_img_path, bottom_right_frame]
 
     # List to store collected yaw and pitch data
-    calibration_points = []
+    calibration_data = []
     
     # Ensure at least one valid input is provided for each position
     if top_left_img_path is None and top_left_frame is None:
@@ -76,16 +76,16 @@ def save_calibration_data(file_path: str = "data.txt",
             return "Error while detecting face."
         
         # Append the collected yaw and pitch data to the list
-        calibration_points.append((yaw, pitch, depth))
+        calibration_data.append((yaw, pitch, depth))
     
     # Attempt to write the collected data to the specified file
     try:
         with open(file_path, 'w') as f:
-            f.write(str(calibration_points))
+            f.write(str(calibration_data))
     except FileNotFoundError:
         # If the specified file path is invalid, save data to the default "data.txt"
         with open("data.txt", 'a') as f:
-            f.write(str(calibration_points))
+            f.write(str(calibration_data))
         return "File for saving data not found. Data saved in data.txt"
 
     # Return success if everything is completed without errors
