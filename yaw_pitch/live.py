@@ -10,7 +10,7 @@ import sys
 
 # Attempt to initialize the webcam capture
 try:
-    cap = cv2.VideoCapture(0)  # Open the default webcam (index 0)
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # Open the default webcam (index 0)
 except:
     print("No camera found.")  # If no camera is found, print an error message
     sys.exit()  # Exit the program if the camera cannot be accessed

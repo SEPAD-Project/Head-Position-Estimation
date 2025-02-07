@@ -21,7 +21,7 @@ from func_yaw_pitch import yaw_pitch
 
 # Initialize webcam capture
 try:
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 except:
     print("No camera found.")
     sys.exit()
