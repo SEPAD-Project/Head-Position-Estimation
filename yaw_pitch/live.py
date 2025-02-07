@@ -28,6 +28,7 @@ while cap.isOpened():
     if type(result) is tuple:
         yaw = result[0]
         pitch = result[1]
+        depth = result[2]
     else:
         print(result)  # Print the error message if the result is not a tuple
         sys.exit()  # Exit the program in case of an error
@@ -45,6 +46,7 @@ while cap.isOpened():
     # Display the yaw and pitch values on the frame
     cv2.putText(frame, f"Yaw: {yaw_direction} ({yaw:.2f})", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
     cv2.putText(frame, f"Pitch: {pitch_direction} ({pitch:.2f})", (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+    cv2.putText(frame, f"Depth: ({depth:.2f})", (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
     # Show the frame with the detected yaw and pitch on the screen
     cv2.imshow('Head Pose Estimation', frame)

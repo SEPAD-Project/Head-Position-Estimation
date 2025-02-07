@@ -74,6 +74,8 @@ def yaw_pitch(image_path=None, frame=None):
             left_eye_outer = landmarks[33]  # Outer corner of the left eye
             right_eye_outer = landmarks[263]  # Outer corner of the right eye
 
+            depth = nose_tip.z
+
             # Convert normalized coordinates to pixel coordinates
             nose_tip = (int(nose_tip.x * image_width), int(nose_tip.y * image_height))
             chin = (int(chin.x * image_width), int(chin.y * image_height))
@@ -89,8 +91,8 @@ def yaw_pitch(image_path=None, frame=None):
             pitch = (chin[1] - nose_tip[1]) - 90
 
             # Return the calculated yaw and pitch
-            return yaw, pitch
+            return yaw, pitch, depth
         
     else:
         # If no face is detected, return None for both yaw and pitch
-        return None, None
+        return None, None, None
