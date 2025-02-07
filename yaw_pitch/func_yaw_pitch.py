@@ -74,7 +74,7 @@ def yaw_pitch(image_path=None, frame=None):
             left_eye_outer = landmarks[33]  # Outer corner of the left eye
             right_eye_outer = landmarks[263]  # Outer corner of the right eye
 
-            depth = nose_tip.z
+            depth = abs(nose_tip.z)*100
 
             # Convert normalized coordinates to pixel coordinates
             nose_tip = (int(nose_tip.x * image_width), int(nose_tip.y * image_height))
