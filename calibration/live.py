@@ -23,7 +23,7 @@ except:
     sys.exit()
 
 # List to store calibration points (yaw and pitch values for monitor corners)
-calibration_points = []
+calibration_data = []
 
 # Dictionary to store the calibrated monitor area (yaw and pitch range)
 calibrated_area = None
@@ -58,42 +58,52 @@ while cap.isOpened():
     # Get yaw and pitch values using the yaw_pitch function
     result = yaw_pitch(frame=frame)
 
-    if type(result) is tuple:
-        yaw = result[0]
-        pitch = result[1]
+    if type(result) == tuple:
+        image_yaw = result[0]
+        image_pitch = result[1]
+        image_depth = result[2]
     else:
-        # If the result is not valid, print the error and exit
-        print(result)
-        sys.exit()
+        print(result)  # Return the error message from yaw_pitch
+
+    # Ensure yaw and pitch values are not None
+    if image_yaw is None and image_pitch is None:
+        print("Error while detecting face.")
 
     # Skip frames where yaw and pitch values are not detected
-    if yaw is None and pitch is None:
+    if image_yaw is None and image_pitch is None:
         continue
 
     # Collect calibration points (yaw and pitch for monitor corners)
-    if len(calibration_points) < 2:
+    if len(calibration_data) < 2:
         # Display calibration instructions
-        draw_calibration_guides(frame, len(calibration_points))
+        draw_calibration_guides(frame, len(calibration_data))
         key = cv2.waitKey(1) & 0xFF
         if key == ord('c'):
             # Save the current yaw and pitch as a calibration point
-            calibration_points.append((yaw, pitch))
+            calibration_data.append((image_yaw, image_pitch, image_depth))
 
     # Calculate the calibrated monitor area after collecting two points
-    if len(calibration_points) == 2 and not calibrated_area:
-        yaw_min, yaw_max = sorted([calibration_points[0][0], calibration_points[1][0]])
-        pitch_min, pitch_max = sorted([calibration_points[0][1], calibration_points[1][1]])
+    if len(calibration_data) == 2 and not calibrated_area:
+        yaw_min, yaw_max = sorted([calibration_data[0][0], calibration_data[1][0]])
+        pitch_min, pitch_max = sorted([calibration_data[0][1], calibration_data[1][1]])
+        init_depth_tl = calibration_data[0][2]
+        init_depth_br = calibration_data[1][2]
+
+        adjusted_yaw_min = yaw_min * (image_depth / init_depth_br )
+        adjusted_pitch_min = pitch_min * (image_depth / init_depth_br )
+        adjusted_yaw_max = yaw_max * (image_depth / init_depth_tl )
+        adjusted_pitch_max = pitch_max * (image_depth / init_depth_tl )
 
         calibrated_area = {
-            "yaw_min": yaw_min,
-            "yaw_max": yaw_max,
-            "pitch_min": pitch_min,
-            "pitch_max": pitch_max,
+            "yaw_min" : adjusted_yaw_min,
+            "yaw_max" : adjusted_yaw_max,
+            "pitch_min" : adjusted_pitch_min,
+            "pitch_max" : adjusted_pitch_max
         }
 
     # Check if the student is looking at the monitor and display the result
     if calibrated_area:
-        draw_student_position(frame, yaw, pitch, calibrated_area)
+        draw_student_position(frame, image_yaw, image_pitch, calibrated_area)
 
     # Display the video feed with instructions and status updates
     cv2.imshow('Live Monitor Calibration', frame)
