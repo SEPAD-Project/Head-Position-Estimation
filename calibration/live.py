@@ -1,6 +1,5 @@
 # by parsasafaie
-# comments by chatgpt (:
-# This script collects yaw and pitch values for monitor corners, then determines if a student is looking at the monitor.
+# comments by ChatGPT (:
 
 # Import libraries
 import cv2
@@ -84,16 +83,19 @@ while cap.isOpened():
 
     # Calculate the calibrated monitor area after collecting two points
     if len(calibration_data) == 2 and not calibrated_area:
+        # Calculate minimum and maximum yaw and pitch values from the two calibration points
         yaw_min, yaw_max = sorted([calibration_data[0][0], calibration_data[1][0]])
         pitch_min, pitch_max = sorted([calibration_data[0][1], calibration_data[1][1]])
-        init_depth_tl = calibration_data[0][2]
-        init_depth_br = calibration_data[1][2]
+        init_depth_tl = calibration_data[0][2]  # Depth for top-left corner
+        init_depth_br = calibration_data[1][2]  # Depth for bottom-right corner
 
+        # Adjust yaw and pitch ranges based on the current depth
         adjusted_yaw_min = yaw_min * (image_depth / init_depth_br )
         adjusted_pitch_min = pitch_min * (image_depth / init_depth_br )
         adjusted_yaw_max = yaw_max * (image_depth / init_depth_tl )
         adjusted_pitch_max = pitch_max * (image_depth / init_depth_tl )
 
+        # Store the calibrated area
         calibrated_area = {
             "yaw_min" : adjusted_yaw_min,
             "yaw_max" : adjusted_yaw_max,

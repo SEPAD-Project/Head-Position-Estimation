@@ -1,9 +1,3 @@
-# by parsasafaie
-# comments by chatgpt (:
-# This function collects the head pose data (yaw and pitch) for monitor corners using either images or frames
-# and saves the calibration data to a file (default: "data.txt").
-
-# Import libraries
 import sys
 from pathlib import Path
 
@@ -18,8 +12,8 @@ def save_calibration_data(file_path: str = "data.txt",
                           top_left_frame = None,  
                           bottom_right_frame = None): 
     '''
-    Collects head pose data (yaw and pitch) for two monitor corners (top-left and bottom-right)
-    using images or OpenCV frames and saves the data to a specified file path.
+    Collects head pose data (yaw, pitch, and depth) for two monitor corners (top-left and bottom-right)
+    using images or OpenCV frames and saves the data to a specified file.
     
     Parameters:
         file_path (str): Path to save the calibration data (default: "data.txt").
@@ -29,53 +23,52 @@ def save_calibration_data(file_path: str = "data.txt",
         bottom_right_frame: OpenCV frame for the bottom-right corner (optional).
         
     Returns:
-        str: Message indicating success or an error, or True if successful.
+        bool: True if successful, False otherwise.
     '''
 
-    # Create a list of all inputs (images and frames) for processing
-    options = [top_left_img_path, top_left_frame, bottom_right_img_path, bottom_right_frame]
-
-    # List to store collected yaw and pitch data
-    calibration_data = []
-    
     # Ensure at least one valid input is provided for each position
-    if top_left_img_path is None and top_left_frame is None:
-        return "Not enough data."
-    if bottom_right_img_path is None and bottom_right_frame is None:
-        return "Not enough data."
+    if not (top_left_img_path or top_left_frame):
+        print("Error: Missing top-left corner data.")
+        return False
+    if not (bottom_right_img_path or bottom_right_frame):
+        print("Error: Missing bottom-right corner data.")
+        return False
     
     # Ensure only one input (image or frame) is provided for each position
-    if top_left_img_path is not None and top_left_frame is not None:
-        return "Bad data."
-    if bottom_right_img_path is not None and bottom_right_frame is not None:
-        return "Bad data."
+    if top_left_img_path and top_left_frame:
+        print("Error: Conflicting inputs for top-left corner.")
+        return False
+    if bottom_right_img_path and bottom_right_frame:
+        print("Error: Conflicting inputs for bottom-right corner.")
+        return False
+    
+    # List of input options (images and frames)
+    options = [top_left_img_path, top_left_frame, bottom_right_img_path, bottom_right_frame]
+
+    # List to store collected yaw, pitch, and depth data
+    calibration_data = []
     
     # Process each input (image or frame)
     for option in options:
-        # Skip None inputs (the other state of the position is provided)
         if option is None: 
-            continue
+            continue  # Skip None values
         
-        # Check the type of input and pass it to the yaw_pitch function accordingly
-        if type(option) is str:
-            result = yaw_pitch(image_path=option)  # Input is an image path
+        # Pass the correct input type to yaw_pitch function
+        result = yaw_pitch(image_path=option) if isinstance(option, str) else yaw_pitch(frame=option)
+        
+        # If yaw_pitch returns a tuple, extract yaw, pitch, and depth values
+        if isinstance(result, tuple):
+            yaw, pitch, depth = result
         else:
-            result = yaw_pitch(frame=option)  # Input is a frame
+            print(result)  # Print the error message from yaw_pitch
+            return False  # Return False if there is an error
         
-        # If yaw_pitch returns a tuple, extract yaw and pitch values
-        if type(result) is tuple:
-            yaw = result[0]
-            pitch = result[1]
-            depth = result[2]
-        else:
-            # If yaw_pitch returns a string, it indicates an error
-            return result
+        # If no face is detected, print the error and return False
+        if yaw is None or pitch is None:
+            print("Error: Face not detected in one of the inputs.")
+            return False
         
-        # If no face is detected in the image/frame, return an error
-        if yaw is None and pitch is None:
-            return "Error while detecting face."
-        
-        # Append the collected yaw and pitch data to the list
+        # Append the collected yaw, pitch, and depth data
         calibration_data.append((yaw, pitch, depth))
     
     # Attempt to write the collected data to the specified file
@@ -86,7 +79,7 @@ def save_calibration_data(file_path: str = "data.txt",
         # If the specified file path is invalid, save data to the default "data.txt"
         with open("data.txt", 'a') as f:
             f.write(str(calibration_data))
-        return "File for saving data not found. Data saved in data.txt"
+        print("Warning: File path not found. Data saved in data.txt.")
+        return False
 
-    # Return success if everything is completed without errors
-    return True
+    return True  # Success

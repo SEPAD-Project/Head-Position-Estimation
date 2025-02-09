@@ -1,7 +1,8 @@
 # by parsasafaie
-# comments by chatgpt (:
+# comments by ChatGPT (:
 
-# Import libraries
+# Import required libraries
+import ast
 from pathlib import Path
 import sys
 import cv2
@@ -24,59 +25,56 @@ def looking_result(data_path, image_path=None, frame=None):
     
     Returns:
         bool: True if the student is looking at the monitor, False otherwise.
-        str: Error message if an issue occurs.
     """
     # Attempt to read calibration points from the specified file
     try:
         with open(data_path, 'r') as f:
-            calibration_data = eval(f.readlines()[0])  # Load calibration points as a list
+            calibration_data = ast.literal_eval(f.read())  # Safe parsing of Python lists
     except FileNotFoundError:
-        return "File for reading data not found."
+        print("File for reading data not found.")
+        return False
+    except (SyntaxError, ValueError):
+        print("Invalid calibration data format.")
+        return False
 
     # Check if an image path or frame is provided
     if image_path is not None:
-        # Load the image from the specified path
         image = cv2.imread(image_path)
-        status = "image_path"
         if image is None:
-            return "Could not find the image."
-    elif frame is not None:
-        status = "frame"
-    else:
-        return "No image or frame provided."
-    
-    # Calculate yaw and pitch using the yaw_pitch function
-    if status == "image_path":
+            print("Could not find the image.")
+            return False
         result = yaw_pitch(image_path=image_path)
-    else:
+    elif frame is not None:
         result = yaw_pitch(frame=frame)
+    else:
+        print("No image or frame provided.")
+        return False
 
     # Check if yaw_pitch returned valid results
-    if type(result) == tuple:
-        image_yaw = result[0]
-        image_pitch = result[1]
-        image_depth = result[2]
-    else:
-        return result  # Return the error message from yaw_pitch
+    if not isinstance(result, tuple) or len(result) < 3:
+        print(result)
+        return False
 
-    # Ensure yaw and pitch values are not None
-    if image_yaw is None and image_pitch is None:
-        return "Error while detecting face."
-    
+    image_yaw, image_pitch, image_depth = result
+
+    if image_yaw is None or image_pitch is None:
+        print("Error while detecting face.")
+        return False
+
     # Extract and sort calibration point ranges for yaw and pitch
     yaw_min, yaw_max = sorted([calibration_data[0][0], calibration_data[1][0]])
     pitch_min, pitch_max = sorted([calibration_data[0][1], calibration_data[1][1]])
-    init_depth_tl = calibration_data[0][2]
-    init_depth_br = calibration_data[1][2]
+    init_depth_tl, init_depth_br = calibration_data[0][2], calibration_data[1][2]
 
-    adjusted_yaw_min = yaw_min * (image_depth / init_depth_br )
-    adjusted_pitch_min = pitch_min * (image_depth / init_depth_br )
-    adjusted_yaw_max = yaw_max * (image_depth / init_depth_tl )
-    adjusted_pitch_max = pitch_max * (image_depth / init_depth_tl )
-    
+    # Corrected depth scaling for more accurate dynamic adjustment
+    scale_factor_tl = image_depth / init_depth_tl
+    scale_factor_br = image_depth / init_depth_br
+
+    # Adjust yaw and pitch values based on dynamic scaling
+    adjusted_yaw_min = yaw_min * scale_factor_br
+    adjusted_pitch_min = pitch_min * scale_factor_br
+    adjusted_yaw_max = yaw_max * scale_factor_tl
+    adjusted_pitch_max = pitch_max * scale_factor_tl
 
     # Check if the calculated yaw and pitch fall within the calibrated area
-    if adjusted_yaw_min <= image_yaw <= adjusted_yaw_max and adjusted_pitch_min <= image_pitch <= adjusted_pitch_max:
-        return True  # Student is looking at the monitor
-    else:
-        return False  # Student is not looking at the monitor
+    return adjusted_yaw_min <= image_yaw <= adjusted_yaw_max and adjusted_pitch_min <= image_pitch <= adjusted_pitch_max

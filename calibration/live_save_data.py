@@ -1,9 +1,7 @@
 # by parsasafaie
-# comments by chatgpt (:
-# This script collects head pose data (yaw and pitch) for monitor corners using a live webcam feed and saves the calibration data to a file named "data.txt". 
-# The user is guided to turn their head toward specific screen corners for calibration.
+# comments by ChatGPT (:
 
-# Import libraries
+# Import necessary libraries
 import cv2
 import sys
 import time
@@ -20,79 +18,86 @@ sys.path.append(str(parent_dir / "yaw_pitch"))
 from func_yaw_pitch import yaw_pitch
 
 # Initialize webcam capture
-try:
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-except:
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+
+# Check if the camera was successfully opened
+if not cap.isOpened():
     print("No camera found.")
     sys.exit()
 
-# List to store calibration points (yaw and pitch values for corners)
+# List to store calibration points (yaw, pitch, and depth for corners)
 calibration_data = []
 
-# Function to draw calibration instructions on the video feed
-def draw_calibration_guides(frame, point_count):
-    if point_count == 0:
-        # Instruction for the first calibration point (TOP-LEFT corner)
-        cv2.putText(frame, "Turn your head to the TOP-LEFT corner and press 'C'", 
-                    (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-    elif point_count == 1:
-        # Instruction for the second calibration point (BOTTOM-RIGHT corner)
-        cv2.putText(frame, "Turn your head to the BOTTOM-RIGHT corner and press 'C'", 
-                    (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-# Main loop to process webcam feed
+def draw_calibration_guides(frame, point_count):
+    """
+    Draws text instructions on the video feed to guide the user through calibration.
+
+    Parameters:
+        frame (numpy.ndarray): The OpenCV frame from the webcam feed.
+        point_count (int): Number of calibration points collected (0 for first, 1 for second).
+    """
+    # Display different instructions based on which corner is being calibrated
+    text = (
+        "Turn your head to the TOP-LEFT corner and press 'C'" if point_count == 0
+        else "Turn your head to the BOTTOM-RIGHT corner and press 'C'"
+    )
+
+    # Display instructions on the screen
+    cv2.putText(frame, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
+                0.7, (0, 255, 0), 2)
+
+
+# Main loop to capture and process webcam frames
 while cap.isOpened():
     # Read a frame from the webcam
     ret, frame = cap.read()
     if not ret:
-        break
+        break  # Exit loop if no frame is received
 
-    # Handle calibration for two points (TOP-LEFT and BOTTOM-RIGHT corners)
+    # Handle calibration for two reference points (TOP-LEFT and BOTTOM-RIGHT corners)
     if len(calibration_data) < 2:
         # Display instructions for the current calibration step
         draw_calibration_guides(frame, len(calibration_data))
+
+        # Capture keyboard input
         key = cv2.waitKey(1) & 0xFF
         if key == ord('c'):
-            # Save the current yaw and pitch values as a calibration point
-
-            # Get yaw and pitch values using the yaw_pitch function
+            # Capture yaw, pitch, and depth values using the yaw_pitch function
             result = yaw_pitch(frame=frame)
-            
-            if type(result) is tuple:
-                yaw = result[0]
-                pitch = result[1]
-                depth = result[2]
+
+            if isinstance(result, tuple):
+                yaw, pitch, depth = result
             else:
-                # If the result is not valid, print the error and exit
+                # Print error message if face detection fails or another issue occurs
                 print(result)
                 sys.exit()
-            
-            # Skip frames where yaw and pitch values are not detected
-            if yaw is None and pitch is None:
-                continue
-            calibration_data.append((yaw, pitch, depth))
 
-    # Save the calibration data to a file after collecting two points
+            # Ensure valid yaw and pitch values are detected before saving
+            if yaw is not None and pitch is not None:
+                calibration_data.append((yaw, pitch, depth))
+
+    # Save calibration data once two reference points are collected
     if len(calibration_data) == 2:
         with open(saved_data_path, 'w') as f:
             f.write(str(calibration_data))
-        
-        # Notify the user that the data has been saved
-        cv2.putText(frame, "Calibration points saved to " + saved_data_path + '.', 
+
+        # Display a message on the video feed to indicate data has been saved
+        cv2.putText(frame, f"Calibration points saved to {saved_data_path}.",
                     (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-        cv2.putText(frame, 'You can now quit the program with press q.', 
+        cv2.putText(frame, "You can now quit the program with 'q'.",
                     (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-    # Display the video feed with instructions or status updates
+    # Show the video feed with instructions
     cv2.imshow('Live Save Monitor Calibration Data', frame)
 
     # Exit the program if 'q' is pressed
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-    # Small delay to control frame processing rate
+    # Small delay to control the frame processing rate
     time.sleep(0.03)
 
-# Release the webcam and close all OpenCV windows
+# Release the webcam and close all OpenCV windows before exiting
 cap.release()
 cv2.destroyAllWindows()
