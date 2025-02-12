@@ -18,7 +18,7 @@ sys.path.append(str(parent_dir / "yaw_pitch"))
 from func_yaw_pitch import yaw_pitch
 
 # Initialize webcam capture
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(0)
 
 # Check if the camera was successfully opened
 if not cap.isOpened():

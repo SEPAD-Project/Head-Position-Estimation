@@ -7,7 +7,7 @@ from func_yaw_pitch import yaw_pitch
 import sys
 
 # Attempt to initialize the webcam capture
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # Open the default webcam (index 0)
+cap = cv2.VideoCapture(0)  # Open the default webcam (index 0)
 
 # Check if the camera opened successfully
 if not cap.isOpened():

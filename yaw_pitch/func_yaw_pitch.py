@@ -73,7 +73,7 @@ def yaw_pitch(image_path=None, frame=None):
             # Pitch is the vertical distance between the chin and nose tip, offset by 90
             pitch = (chin[1] - nose_tip[1]) - 90
 
-            return True  # Return True if successful
+            return (yaw, pitch, depth)  # Return yaw and pitch if successful
         
     # If no face is detected, print error and return False
     print("Error: No face detected.")
