@@ -61,12 +61,10 @@ def yaw_pitch(image_path=None, frame=None):
             depth = abs(nose_tip.z) * 100
 
             # Compute yaw (horizontal head rotation)
-            # Yaw is the horizontal distance of the nose from the midpoint of the eyes
-            yaw = (right_eye_outer.x-nose_tip.x) - (nose_tip.x-left_eye_outer.x)
+            yaw = ((right_eye_outer.x-nose_tip.x) - (nose_tip.x-left_eye_outer.x)) * 100
 
             # Compute pitch (vertical head rotation)
-            # Pitch is the vertical distance between the chin and nose tip, offset by 90
-            pitch = (chin.y - nose_tip.y) - (nose_tip.y - nasion.y)
+            pitch = ((chin.y - nose_tip.y) - (nose_tip.y - nasion.y)) * 100
 
             return (yaw, pitch, depth)  # Return yaw and pitch if successful
         
