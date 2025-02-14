@@ -26,17 +26,7 @@ def looking_result(data_path, image_path=None, frame=None):
     Returns:
         bool: True if the student is looking at the monitor, False otherwise.
     """
-    # Attempt to read calibration points from the specified file
-    try:
-        with open(data_path, 'r') as f:
-            calibration_data = ast.literal_eval(f.read())  # Safe parsing of Python lists
-    except FileNotFoundError:
-        print("File for reading data not found.")
-        return False
-    except (SyntaxError, ValueError):
-        print("Invalid calibration data format.")
-        return False
-
+    
     # Check if an image path or frame is provided
     if image_path is not None:
         image = cv2.imread(image_path)
