@@ -1,8 +1,6 @@
 .venv
 __pycache__
-data.txt
-top_left.png
-bottom_right.png
-test1.png
-test2.png
-tmp.py
+1.jpeg
+2.jpeg
+3.jpeg
+4.jpeg
