@@ -61,20 +61,10 @@ def looking_result(data_path, image_path=None, frame=None):
         print("Error while detecting face.")
         return False
 
-    # Extract and sort calibration point ranges for yaw and pitch
-    yaw_min, yaw_max = sorted([calibration_data[0][0], calibration_data[1][0]])
-    pitch_min, pitch_max = sorted([calibration_data[0][1], calibration_data[1][1]])
-    init_depth_tl, init_depth_br = calibration_data[0][2], calibration_data[1][2]
+    yaw_min, yaw_max = -2*image_depth, 2*image_depth
+    pitch_min, pitch_max = -0.2*image_depth, 1.4*image_depth
 
-    # Corrected depth scaling for more accurate dynamic adjustment
-    scale_factor_tl = image_depth / init_depth_tl
-    scale_factor_br = image_depth / init_depth_br
 
-    # Adjust yaw and pitch values based on dynamic scaling
-    adjusted_yaw_min = yaw_min * scale_factor_br
-    adjusted_pitch_min = pitch_min * scale_factor_br
-    adjusted_yaw_max = yaw_max * scale_factor_tl
-    adjusted_pitch_max = pitch_max * scale_factor_tl
 
     # Check if the calculated yaw and pitch fall within the calibrated area
-    return adjusted_yaw_min <= image_yaw <= adjusted_yaw_max and adjusted_pitch_min <= image_pitch <= adjusted_pitch_max
+    return yaw_min <= image_yaw <= yaw_max and pitch_min <= image_pitch <= pitch_max
