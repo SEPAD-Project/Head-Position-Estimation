@@ -2,24 +2,25 @@
 # comments by ChatGPT (:
 
 # Import required libraries
-import ast
 from pathlib import Path
 import sys
 import cv2
+import os
 
 # Add the parent directory containing the 'yaw_pitch' module to the Python path
 parent_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(parent_dir / "yaw_pitch"))
+sys.path.append(str(parent_dir / "face_recognition"))
 
 # Import the yaw_pitch function for calculating yaw and pitch angles
 from func_yaw_pitch import yaw_pitch
+from compare import compare_faces
 
-def looking_result(data_path, image_path=None, frame=None):
+def looking_result(verifying_image_path, image_path=None, frame=None):
     """
     Determines if a student is looking at the monitor.
     
     Args:
-        data_path (str): Path to the file containing calibration points.
         image_path (str): Path to the image for yaw and pitch detection. Default is None.
         frame (ndarray): OpenCV frame for yaw and pitch detection. Default is None.
     
@@ -33,9 +34,21 @@ def looking_result(data_path, image_path=None, frame=None):
         if image is None:
             print("Could not find the image.")
             return False
-        result = yaw_pitch(image_path=image_path)
+        if compare_faces(verifying_image_path, image_path):
+            result = yaw_pitch(image_path=image_path)
+        else:
+            print("Face did not match with reference face.")
+            return False
     elif frame is not None:
-        result = yaw_pitch(frame=frame)
+        cv2.imwrite("tmp.jpeg", frame)
+        if verify(Path(__file__).resolve().parent+"/tmp.jpeg", verifying_image_path):
+            result = yaw_pitch(frame=frame)
+            os.remove("tmp.py")
+        else:
+            print("Face did not match with reference face.")
+            return False
+        
+
     else:
         print("No image or frame provided.")
         return False
@@ -53,8 +66,6 @@ def looking_result(data_path, image_path=None, frame=None):
 
     yaw_min, yaw_max = -2*image_depth, 2*image_depth
     pitch_min, pitch_max = -0.2*image_depth, 1.4*image_depth
-
-
 
     # Check if the calculated yaw and pitch fall within the calibrated area
     return yaw_min <= image_yaw <= yaw_max and pitch_min <= image_pitch <= pitch_max
