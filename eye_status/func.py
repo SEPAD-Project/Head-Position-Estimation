@@ -1,31 +1,38 @@
 import mediapipe as mp
 import cv2
-from time import sleep
 
-EAR_THRESHOLD = 0.2  # Threshold for detecting if the eye is closed
+EAR_THRESHOLD = 0.2  # Threshold for detecting if the eye is open
 
-def detect_eye_status(frame):
-    """Detect the eye status (open or closed) based on the EAR calculation"""
-    # Initialize MediaPipe FaceMesh to detect face landmarks
-    face_mesh = mp.solutions.face_mesh.FaceMesh(refine_landmarks=True, max_num_faces=1)
-    
-    # Convert the frame to RGB for MediaPipe
+# Initialize MediaPipe FaceMesh globally (prevents unnecessary reinitialization)
+face_mesh = mp.solutions.face_mesh.FaceMesh(refine_landmarks=True, max_num_faces=1)
+
+def is_eye_open(frame):
+    """
+    Detects whether the eye is open or closed based on the Eye Aspect Ratio (EAR).
+
+    Args:
+        frame (ndarray): OpenCV frame from the webcam.
+
+    Returns:
+        bool: True if the eye is open, False if closed or no face detected.
+    """
+    # Convert the frame to RGB for MediaPipe processing
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = face_mesh.process(rgb_frame)
 
-    # If landmarks are detected
     if results.multi_face_landmarks:
         for face_landmarks in results.multi_face_landmarks:
             landmarks = face_landmarks.landmark
-            # Get the coordinates of the upper, lower, right, and left points of the eye
-            top = landmarks[386].y
-            bottom = landmarks[374].y
-            right = landmarks[263].x
-            left = landmarks[362].x
 
-            # Calculate the Eye Aspect Ratio (EAR)
-            ear = (bottom - top) / (right - left)
+            # Extract landmark positions for eye aspect ratio calculation
+            eye_top_y = landmarks[386].y
+            eye_bottom_y = landmarks[374].y
+            eye_right_x = landmarks[263].x
+            eye_left_x = landmarks[362].x
 
-            return ear > EAR_THRESHOLD
-    else:
-        return False
+            # Compute Eye Aspect Ratio (EAR)
+            eye_aspect_ratio = (eye_bottom_y - eye_top_y) / (eye_right_x - eye_left_x)
+
+            return eye_aspect_ratio > EAR_THRESHOLD
+
+    return False  # Return False if no face is detected

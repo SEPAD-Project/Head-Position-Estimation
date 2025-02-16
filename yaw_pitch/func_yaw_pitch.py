@@ -1,16 +1,19 @@
+# by parsasafaie
+# comments by ChatGPT (:
+
+
 import cv2
 import mediapipe as mp
 
 def yaw_pitch(image_path=None, frame=None):
     """
-    Computes yaw, pitch, and depth of a detected face in an image or video frame.
-    
+    Computes the yaw, pitch, and depth of a detected face in an image or video frame.
+
     Args:
         image_path (str, optional): Path to the input image. Defaults to None.
         frame (numpy.ndarray, optional): Input video frame. Defaults to None.
-    
     Returns:
-        bool: True if successful, False if no face is detected or if an error occurs.
+        tuple: (yaw, pitch, depth) if a face is detected, otherwise False.
     """
     # Initialize MediaPipe FaceMesh for detecting facial landmarks
     mp_face_mesh = mp.solutions.face_mesh
@@ -23,7 +26,7 @@ def yaw_pitch(image_path=None, frame=None):
     )
 
     # Check if input is an image path or a video frame
-    if image_path is not None:
+    if image_path:
         image = cv2.imread(image_path)  # Read the image
         if image is None:
             print("Error: Could not find the image.")  # Handle invalid paths
@@ -34,12 +37,9 @@ def yaw_pitch(image_path=None, frame=None):
         print("Error: No image or frame provided.")  # Handle missing input
         return False
         
-    # Flip the image horizontally (optional, adjust based on camera setup)
+    # Flip the image horizontally for consistent results
     image = cv2.flip(image, 1)
-    
-    # Get image dimensions
-    image_height, image_width, _ = image.shape
-    
+
     # Convert image from BGR to RGB (required for MediaPipe processing)
     rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
@@ -55,18 +55,18 @@ def yaw_pitch(image_path=None, frame=None):
             chin = landmarks[152]  # Chin
             left_eye_outer = landmarks[33]  # Outer corner of the left eye
             right_eye_outer = landmarks[263]  # Outer corner of the right eye
-            nasion = landmarks[168] # Nasion
+            nasion = landmarks[168]  # Nasion (between eyes)
 
             # Calculate depth estimation using the Z coordinate of the nose
             depth = abs(nose_tip.z) * 100
 
             # Compute yaw (horizontal head rotation)
-            yaw = ((right_eye_outer.x-nose_tip.x) - (nose_tip.x-left_eye_outer.x)) * 100
+            yaw = ((right_eye_outer.x - nose_tip.x) - (nose_tip.x - left_eye_outer.x)) * 100
 
             # Compute pitch (vertical head rotation)
             pitch = ((chin.y - nose_tip.y) - (nose_tip.y - nasion.y)) * 100
 
-            return (yaw, pitch, depth)  # Return yaw and pitch if successful
+            return (yaw, pitch, depth)  # Return yaw, pitch, and depth if face is detected
         
     # If no face is detected, print error and return False
     print("Error: No face detected.")
