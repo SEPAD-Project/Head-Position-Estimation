@@ -11,10 +11,12 @@ import os
 parent_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(parent_dir / "yaw_pitch"))
 sys.path.append(str(parent_dir / "face_recognition"))
+sys.path.append(str(parent_dir / "eye_status"))
 
 # Import required functions
 from func_yaw_pitch import yaw_pitch
 from compare import compare_faces
+from func import is_eye_open
 
 def looking_result(verifying_image_path, image_path=None, frame=None):
     """
@@ -38,6 +40,10 @@ def looking_result(verifying_image_path, image_path=None, frame=None):
         if not compare_faces(verifying_image_path, image_path):
             print("Error: Face did not match with the reference face.")
             return False
+        if not is_eye_open(frame):
+            print("Error: The eye is closed.")
+            return False
+        
         result = yaw_pitch(image_path=image_path)
 
     elif frame is not None:
