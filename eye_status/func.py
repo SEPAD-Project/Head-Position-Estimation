@@ -35,4 +35,4 @@ def is_eye_open(frame):
 
             return eye_aspect_ratio > EAR_THRESHOLD
 
-    return False  # Return False if no face is detected
+    return 1

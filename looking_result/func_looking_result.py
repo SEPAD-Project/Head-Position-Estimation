@@ -38,8 +38,15 @@ def looking_result(verifying_image_path, image_path=None, frame=None):
             return 1
         if not compare_faces(verifying_image_path, image_path):
             return 2
-        if not is_eye_open(frame):
-            return 3
+        
+        eye_status = is_eye_open(frame)
+        if isinstance(eye_status, int):
+            return 1
+        else:
+            if not eye_status:
+                return 3
+            
+        
         
         result = yaw_pitch(image_path=image_path)
 
