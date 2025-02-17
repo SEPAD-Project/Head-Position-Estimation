@@ -1,5 +1,5 @@
 number,face_detected,head_position_valid,eyes_open,identity_confirmed
-1,True,any,any,any
+1,False,any,any,any
 2,True,any,any,False
 3,True,any,False,True
 4,True,False,True,True
