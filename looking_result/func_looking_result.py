@@ -35,14 +35,11 @@ def looking_result(verifying_image_path, image_path=None, frame=None):
     if image_path is not None:
         image = cv2.imread(image_path)
         if image is None:
-            print("Error: Could not find the image.")
-            return False
+            return 1
         if not compare_faces(verifying_image_path, image_path):
-            print("Error: Face did not match with the reference face.")
-            return False
+            return 2
         if not is_eye_open(frame):
-            print("Error: The eye is closed.")
-            return False
+            return 3
         
         result = yaw_pitch(image_path=image_path)
 
@@ -50,20 +47,17 @@ def looking_result(verifying_image_path, image_path=None, frame=None):
         tmp_path = Path(__file__).resolve().parent / "tmp.jpeg"
         cv2.imwrite(str(tmp_path), frame)  # Save the frame as a temporary image
         if not compare_faces(verifying_image_path, str(tmp_path)):
-            print("Error: Face did not match with the reference face.")
             os.remove(tmp_path)  # Cleanup temp file
-            return False
+            return 2
         result = yaw_pitch(frame=frame)
         os.remove(tmp_path)  # Cleanup temp file
 
     else:
-        print("Error: No image or frame provided.")
-        return False
+        return 1
 
     # Check if yaw_pitch returned valid results
     if not isinstance(result, tuple) or len(result) < 3:
-        print("Error:", result)
-        return False
+        return result
 
     image_yaw, image_pitch, image_depth = result
 
@@ -72,4 +66,4 @@ def looking_result(verifying_image_path, image_path=None, frame=None):
     pitch_min, pitch_max = -0.2 * image_depth, 1.4 * image_depth
 
     # Check if yaw and pitch fall within the calibrated area
-    return yaw_min <= image_yaw <= yaw_max and pitch_min <= image_pitch <= pitch_max
+    return 5 if yaw_min <= image_yaw <= yaw_max and pitch_min <= image_pitch <= pitch_max else 4

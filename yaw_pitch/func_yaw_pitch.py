@@ -29,13 +29,11 @@ def yaw_pitch(image_path=None, frame=None):
     if image_path:
         image = cv2.imread(image_path)  # Read the image
         if image is None:
-            print("Error: Could not find the image.")  # Handle invalid paths
-            return False
+            return 1
     elif frame is not None:
         image = frame.copy()  # Use the provided video frame
     else:
-        print("Error: No image or frame provided.")  # Handle missing input
-        return False
+        return 1
         
     # Flip the image horizontally for consistent results
     image = cv2.flip(image, 1)
@@ -67,7 +65,7 @@ def yaw_pitch(image_path=None, frame=None):
             pitch = ((chin.y - nose_tip.y) - (nose_tip.y - nasion.y)) * 100
 
             return (yaw, pitch, depth)  # Return yaw, pitch, and depth if face is detected
+            
         
-    # If no face is detected, print error and return False
-    print("Error: No face detected.")
-    return False
+    # If no face is detected, return 1
+    return 1
