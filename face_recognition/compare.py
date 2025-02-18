@@ -12,8 +12,7 @@ def compare_faces(face1, face2):
         bool: True if the faces match, False otherwise.
     """
     try:
-        result = DeepFace.verify(face1, face2, model_name="Facenet", enforce_detection=False)
+        result = DeepFace.verify(face1, face2, model_name="Facenet")
         return bool(result.get('verified', False))
-    except Exception as e:
-        print(f"Error in face comparison: {e}")
-        return False
+    except ValueError:
+        return 1

@@ -33,11 +33,16 @@ def looking_result(verifying_image_path, image_path=None, frame=None):
     
     # Check if an image path or frame is provided
     if image_path is not None:
-        image = cv2.imread(image_path)
-        if image is None:
+        frame = cv2.imread(image_path)
+        if frame is None:
             return 1
-        if not compare_faces(verifying_image_path, image_path):
-            return 2
+        
+        face_status = compare_faces(verifying_image_path, image_path)
+        if isinstance(face_status, int):
+            return face_status
+        else:
+            if not face_status:
+                return 2
         
         eye_status = is_eye_open(frame)
         if isinstance(eye_status, int):
@@ -46,8 +51,6 @@ def looking_result(verifying_image_path, image_path=None, frame=None):
             if not eye_status:
                 return 3
             
-        
-        
         result = yaw_pitch(image_path=image_path)
 
     elif frame is not None:
