@@ -1,3 +1,6 @@
+# by parsasafaie
+# comments by ChatGPT (:
+
 import mediapipe as mp
 import cv2
 

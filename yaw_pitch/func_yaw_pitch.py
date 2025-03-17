@@ -1,23 +1,23 @@
 # by parsasafaie
 # comments by ChatGPT (:
 
-
 import cv2
 import mediapipe as mp
 
-def yaw_pitch(image_path=None, frame=None):
+def yaw_pitch(frame=None):
     """
-    Computes the yaw, pitch, and depth of a detected face in an image or video frame.
+    Computes the yaw, pitch, and depth of a detected face in an video frame.
 
     Args:
-        image_path (str, optional): Path to the input image. Defaults to None.
         frame (numpy.ndarray, optional): Input video frame. Defaults to None.
     Returns:
         tuple: (yaw, pitch, depth) if a face is detected, otherwise False.
     """
+    if frame is None:
+        return 1
+
     # Initialize MediaPipe FaceMesh for detecting facial landmarks
-    mp_face_mesh = mp.solutions.face_mesh
-    face_mesh = mp_face_mesh.FaceMesh(
+    face_mesh = mp.solutions.face_mesh.FaceMesh(
         static_image_mode=False,  # Process video frames dynamically
         max_num_faces=1,  # Detect only one face
         refine_landmarks=False,  # Use basic landmarks (not refined)
@@ -25,24 +25,14 @@ def yaw_pitch(image_path=None, frame=None):
         min_tracking_confidence=0.5  # Minimum tracking confidence
     )
 
-    # Check if input is an image path or a video frame
-    if image_path:
-        image = cv2.imread(image_path)  # Read the image
-        if image is None:
-            return 1
-    elif frame is not None:
-        image = frame.copy()  # Use the provided video frame
-    else:
-        return 1
-        
-    # Flip the image horizontally for consistent results
-    image = cv2.flip(image, 1)
+    # Flip the frame horizontally for consistent results
+    frame = cv2.flip(frame, 1)
 
-    # Convert image from BGR to RGB (required for MediaPipe processing)
-    rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    # Convert frame from BGR to RGB (required for MediaPipe processing)
+    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    # Process the image to detect face landmarks
-    results = face_mesh.process(rgb_image)
+    # Process the frame to detect face landmarks
+    results = face_mesh.process(rgb_frame)
 
     # Check if at least one face is detected
     if results.multi_face_landmarks:
@@ -64,8 +54,8 @@ def yaw_pitch(image_path=None, frame=None):
             # Compute pitch (vertical head rotation)
             pitch = ((chin.y - nose_tip.y) - (nose_tip.y - nasion.y)) * 100
 
-            return (yaw, pitch, depth)  # Return yaw, pitch, and depth if face is detected
+            return {'yaw':yaw, 'pitch':pitch, 'depth':depth}  # Return yaw, pitch, and depth if face is detected
             
-        
-    # If no face is detected, return 1
-    return 1
+    else:
+        # If no face is detected, return 1
+        return 1
