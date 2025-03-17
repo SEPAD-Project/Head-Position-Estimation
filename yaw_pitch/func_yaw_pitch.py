@@ -3,6 +3,7 @@
 
 import cv2
 import mediapipe as mp
+from numpy import ndarray
 
 def yaw_pitch(frame=None):
     """
@@ -13,8 +14,8 @@ def yaw_pitch(frame=None):
     Returns:
         tuple: (yaw, pitch, depth) if a face is detected, otherwise False.
     """
-    if frame is None:
-        return 1
+    if not isinstance(frame, ndarray):
+        return 0 
 
     # Initialize MediaPipe FaceMesh for detecting facial landmarks
     face_mesh = mp.solutions.face_mesh.FaceMesh(

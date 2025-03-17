@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 import cv2
 import os
+from numpy import ndarray
 
 # Add the parent directory containing the required modules to the Python path
 parent_dir = Path(__file__).resolve().parent.parent
@@ -29,8 +30,8 @@ def looking_result(verifying_image_path, frame=None):
     Returns:
         bool: True if the student is looking at the monitor, False otherwise.
     """
-    if frame is None:
-        return 1
+    if not isinstance(frame, ndarray):
+        return 0 
     
     tmp_path = "tmp.jpeg"
     cv2.imwrite(str(tmp_path), frame)  # Save the frame as a temporary image
