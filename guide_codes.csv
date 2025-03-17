@@ -1,6 +1,7 @@
-number,face_detected,head_position_valid,eyes_open,identity_confirmed
-1,False,any,any,any
-2,True,any,any,False
-3,True,any,False,True
-4,True,False,True,True
-5,True,True,True,True
+number,valid_input_format,face_detected,identity_confirmed,eyes_open,valid_head_position
+0,False,any,any,any,any
+1,True,False,any,any,any
+2,True,True,False,any,any
+3,True,True,True,False,any
+4,True,True,True,True,False
+5,True,True,True,True,True
