@@ -1,5 +1,4 @@
 import cv2
-import numpy as np
 
 def extract_feature(face_detector, face_recognizer, image):
     faces = face_detector.detectMultiScale(image, 1.1, 4)
