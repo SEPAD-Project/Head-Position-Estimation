@@ -16,7 +16,7 @@ sys.path.append(str(parent_dir / "eye_status"))
 
 # Import required functions
 from func_yaw_pitch import yaw_pitch
-from compare import compare_faces
+from compare import compare
 from func_eye_status import is_eye_open
 
 def looking_result(verifying_image_path, frame=None):
@@ -33,11 +33,8 @@ def looking_result(verifying_image_path, frame=None):
     if not isinstance(frame, ndarray):
         return 0 
     
-    tmp_path = "tmp.jpeg"
-    cv2.imwrite(str(tmp_path), frame)  # Save the frame as a temporary image
-    if compare_faces(verifying_image_path, str(tmp_path)) == False:
+    if compare(face_detector_path="haarcascade_frontalface_default.xml", face_recognizer_path="face_recognition_sface_2021dec.onnx", ref_image_path="parsa.jpg", new_frame=frame) == False:
         return 2
-    os.remove(tmp_path)  # Cleanup temp file
 
     if is_eye_open(frame) == False:
         return 3
