@@ -1,7 +1,6 @@
 import cv2
 from time import sleep
-import os
-from compare import compare_faces
+from compare import compare
 
 cap = cv2.VideoCapture(0)
 
@@ -10,10 +9,7 @@ while True:
     if not ret:
         print("RESULT: can't open video capture.")
     
-    tmp_path = "tmp.jpeg"
-    cv2.imwrite(str(tmp_path), frame)
-    result = compare_faces('ref.jpg', tmp_path) # change ref.jpg to your reference image path
-    os.remove(tmp_path)
+    result = compare(face_detector_path="haarcascade_frontalface_default.xml", face_recognizer_path="face_recognition_sface_2021dec.onnx", ref_image_path="parsa.jpg", new_frame=frame) # adjust this path for yourself
 
     if isinstance(result, bool):
         print(f'RESULT: the result is {str(result)}')
