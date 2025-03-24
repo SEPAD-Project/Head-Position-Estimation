@@ -11,9 +11,9 @@ while True:
     
     result = yaw_pitch(frame=frame)
     if isinstance(result, dict):
-        print(f'yaw: {result['yaw']}')
-        print(f'pitch: {result['pitch']}')
-        print(f'depth: {result['depth']}')
+        print(f"yaw: {result['yaw']}")
+        print(f"pitch: {result['pitch']}")
+        print(f"depth: {result['depth']}")
         print("==============================")
     elif isinstance(result, int):
         print(f'RESULT: {str(result)}')
