@@ -19,7 +19,7 @@ from func_yaw_pitch import yaw_pitch
 from compare import compare
 from func_eye_status import is_eye_open
 
-def looking_result(verifying_image_path, frame=None):
+def looking_result(face_detector_path="haarcascade_frontalface_default.xml", face_recognizer_path="face_recognition_sface_2021dec.onnx", ref_image_path=None, frame=None):
     """
     Determines if a student is looking at the monitor by analyzing yaw, pitch, and depth.
 
@@ -33,7 +33,10 @@ def looking_result(verifying_image_path, frame=None):
     if not isinstance(frame, ndarray):
         return 0 
     
-    if compare(face_detector_path="haarcascade_frontalface_default.xml", face_recognizer_path="face_recognition_sface_2021dec.onnx", ref_image_path="parsa.jpg", new_frame=frame) == False:
+    if not isinstance(ref_image_path, str):
+        return 0
+    
+    if compare(face_detector_path=face_detector_path, face_recognizer_path=face_recognizer_path, ref_image_path=ref_image_path, new_frame=frame) == False:
         return 2
 
     if is_eye_open(frame) == False:

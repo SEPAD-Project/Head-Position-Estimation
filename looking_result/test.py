@@ -9,7 +9,7 @@ while True:
     if not ret:
         print("RESULT: can't open video capture.")
     
-    result = looking_result(verifying_image_path='ref.jpg' ,frame=frame) # change ref.jpg to your reference image path
+    result = looking_result(face_detector_path="haarcascade_frontalface_default.xml", face_recognizer_path="face_recognition_sface_2021dec.onnx", ref_image_path='ref.jpg' ,frame=frame) # change ref.jpg to your reference image path
     if isinstance(result, int):
         print(f'RESULT: the result code is {str(result)}')
         print("==============================")
@@ -18,5 +18,5 @@ while True:
         print(result)
         print("==============================")
 
-    sleep(3) # you can adjust this value by your need. 
-    
+
+    sleep(1) # you can adjust this value by your need. 
