@@ -3,6 +3,9 @@
 
 import cv2
 
+OPENCV_FACE_DETECTOR_PATH = r"c:\\sap-program\\opencv\\haarcascade_frontalface_default.xml"
+OPENCV_FACE_RECOGNIZER_PATH = r"c:\\sap-program\\opencv\\face_recognition_sface_2021dec.onnx"
+
 def extract_feature(face_detector, face_recognizer, image):
     """
     Extracts facial features from an image using a face detector and face recognizer.
@@ -33,13 +36,11 @@ def extract_feature(face_detector, face_recognizer, image):
     return face_recognizer.feature(face_crop)
 
 
-def compare(face_detector_path, face_recognizer_path, ref_image_path, new_frame):
+def compare(ref_image_path, new_frame):
     """
     Compares a reference image with a new frame to determine if they belong to the same person.
 
     Args:
-        face_detector_path (str): Path to the Haar Cascade XML file for face detection.
-        face_recognizer_path (str): Path to the face recognition model file.
         ref_image_path (str): Path to the reference image.
         new_frame (numpy.ndarray): New frame (image) to compare with the reference image.
 
@@ -48,10 +49,10 @@ def compare(face_detector_path, face_recognizer_path, ref_image_path, new_frame)
         int: Returns 0 if the reference image cannot be loaded.
     """
     # Initialize the face detector using the Haar Cascade classifier
-    face_detector = cv2.CascadeClassifier(cv2.data.haarcascades + face_detector_path)
+    face_detector = cv2.CascadeClassifier(OPENCV_FACE_DETECTOR_PATH)
 
     # Initialize the face recognizer using the specified model
-    face_recognizer = cv2.FaceRecognizerSF.create(face_recognizer_path, "")
+    face_recognizer = cv2.FaceRecognizerSF.create(OPENCV_FACE_RECOGNIZER_PATH, "")
 
     # Load the reference image
     image = cv2.imread(ref_image_path)

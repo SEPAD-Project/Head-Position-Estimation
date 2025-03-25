@@ -21,10 +21,7 @@ while True:
         break  # Exit the loop if the frame cannot be read
 
     # Call the `compare` function to determine if the face in the current frame matches the reference image
-    result = compare(
-        face_detector_path="haarcascade_frontalface_default.xml",  # Path to the Haar Cascade XML file for face detection
-        face_recognizer_path="face_recognition_sface_2021dec.onnx",  # Path to the face recognition model file
-        ref_image_path="parsa.jpg",  # Path to the reference image (adjust this path as needed)
+    result = compare(ref_image_path="parsa.jpg",  # Path to the reference image (adjust this path as needed)
         new_frame=frame  # The current frame from the camera
     )
 
