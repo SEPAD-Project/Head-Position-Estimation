@@ -8,10 +8,10 @@ os.makedirs(r"c:\\sap-program\\opencv")
 
 def download():
     try:
-        urlretrieve("https://github.com/SAP-Program/Head-Position-Estimation/raw/refs/heads/main/face_recognition_sface_2021dec.onnx",
+        urlretrieve("https://github.com/SAP-Program/Head-Position-Estimation/raw/refs/heads/main/models/face_recognition_sface_2021dec.onnx",
                     OPENCV_FACE_RECOGNIZER_PATH)
 
-        urlretrieve("https://github.com/SAP-Program/Head-Position-Estimation/raw/refs/heads/main/haarcascade_frontalface_default.xml",
+        urlretrieve("https://github.com/SAP-Program/Head-Position-Estimation/raw/refs/heads/main/models/haarcascade_frontalface_default.xml",
                     OPENCV_FACE_DETECTOR_PATH)
         
         return True
