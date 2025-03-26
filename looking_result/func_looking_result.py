@@ -65,18 +65,14 @@ def looking_result(ref_image_path=None,
         return 3  # Return 3 if the eyes are closed
 
     # Compute yaw, pitch, and depth using the `yaw_pitch` function
-    result = yaw_pitch(frame=frame)
+    result = yaw_pitch(frame=frame)[0]
 
     # Check if `yaw_pitch` returned valid results (a dictionary)
-    if not isinstance(result, dict):
+    if not isinstance(result, bool):
         return result  # Return the error code from `yaw_pitch` if invalid
 
-    # Define valid yaw and pitch ranges based on depth
-    yaw_min, yaw_max = -2 * result['depth'], 2 * result['depth']  # Yaw range proportional to depth
-    pitch_min, pitch_max = -0.2 * result['depth'], 1.4 * result['depth']  # Pitch range proportional to depth
-
     # Check if yaw and pitch fall within the calibrated area
-    if yaw_min <= result['yaw'] <= yaw_max and pitch_min <= result['pitch'] <= pitch_max:
+    if result:
         return 5  # Return 5 if the student is looking at the monitor
     else:
         return 4  # Return 4 if yaw or pitch is outside the valid range

@@ -65,9 +65,11 @@ def yaw_pitch(frame=None):
             # Pitch is calculated based on the difference in Y-coordinates between the chin, nose tip, and nasion
             pitch = ((chin.y - nose_tip.y) - (nose_tip.y - nasion.y)) * 100
 
-            # Return the computed yaw, pitch, and depth as a dictionary
-            return {'yaw': yaw, 'pitch': pitch, 'depth': depth}
-            
+            yaw_min, yaw_max = -2 * depth, 2 * depth  # Yaw range proportional to depth
+            pitch_min, pitch_max = -0.2 * depth, 1.4 * depth # Pitch range proportional to depth
+
+            # Check if yaw and pitch fall within the calibrated area
+            return yaw_min <= yaw <= yaw_max and pitch_min <= pitch <= pitch_max, {'yaw':yaw, 'pitch':pitch, 'depth':depth}      
     else:
         # If no face is detected, return 1
         return 1

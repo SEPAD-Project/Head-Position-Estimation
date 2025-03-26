@@ -21,7 +21,7 @@ while True:
         break  # Exit the loop if the frame cannot be read
 
     # Call the `yaw_pitch` function to compute yaw, pitch, and depth
-    result = yaw_pitch(frame=frame)
+    result = yaw_pitch(frame=frame)[1]
 
     # Process the result returned by the `yaw_pitch` function
     if isinstance(result, dict):
