@@ -15,8 +15,6 @@ cd Head-Position-Estimation
 ```
 
 ## Installing Dependencies
-Then, navigate to the repository directory:
-
 1. Create a virtual environment:
    ```bash
    python -m venv .venv
