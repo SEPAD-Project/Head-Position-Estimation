@@ -1,6 +1,5 @@
 # by parsasafaie
-# comments by QWEN (:
- 
+# Comments improved by ChatGPT (:
 
 # Import required libraries
 from pathlib import Path  # To handle file paths in a platform-independent way
@@ -43,6 +42,7 @@ def looking_result(ref_image_path=None,
             - `4`: Yaw or pitch outside the valid range.
             - `5`: Student is looking at the monitor.
     """
+    
     # Validate that the input frame is a valid NumPy array
     if not isinstance(frame, ndarray):
         return 0  # Return 0 if the input frame is invalid

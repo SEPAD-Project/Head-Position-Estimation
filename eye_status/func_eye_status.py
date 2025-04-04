@@ -1,66 +1,72 @@
 # by parsasafaie
-# comments by QWEN (:
+# Comments improved by ChatGPT (:
 
 import mediapipe as mp
 import cv2
 from numpy import ndarray
 
-# Threshold for detecting if the eye is open
-EAR_THRESHOLD = 0.2  
+# Threshold value for Eye Aspect Ratio (EAR) — determines if the eye is open
+EAR_THRESHOLD = 0.2
 
-# Initialize MediaPipe FaceMesh globally (prevents unnecessary reinitialization)
-# Using `refine_landmarks=True` ensures higher precision for facial landmarks.
+# Initialize MediaPipe FaceMesh only once (global) for performance
+# `refine_landmarks=True` enables more accurate detection of key points like eyes
 face_mesh = mp.solutions.face_mesh.FaceMesh(
-    refine_landmarks=True,  # Use refined landmarks for better accuracy
-    max_num_faces=1         # Detect only one face at a time
+    refine_landmarks=True,
+    max_num_faces=1
 )
 
 def is_eye_open(frame=None):
     """
-    Detects whether the eye is open or closed based on the Eye Aspect Ratio (EAR).
+    Determines whether the right eye is open based on Eye Aspect Ratio (EAR).
 
-    The function calculates the Eye Aspect Ratio (EAR) using specific facial landmarks.
-    If the EAR is above a predefined threshold, the eye is considered open; otherwise, it's closed.
+    Uses MediaPipe FaceMesh to locate eye landmarks, then calculates the vertical-to-horizontal
+    ratio (EAR) of the eye. If the EAR exceeds a certain threshold, the eye is considered open.
+
+    This function is designed to return:
+        - A boolean indicating if the eye is open (True) or closed (False)
+        - Or an error code:
+            - 0: Invalid input frame
+            - 1: No face detected
 
     Args:
-        frame (ndarray): OpenCV frame from the webcam (BGR format).
+        frame (ndarray): A video frame captured using OpenCV (in BGR format).
 
     Returns:
-        bool: True if the eye is open, False if closed or no face detected.
-        int: Returns 0 if the input frame is invalid, or 1 if no face is detected.
+        bool: True if the eye is open, False if the eye is closed.
+        int:
+            - 0: If the input is not a valid NumPy array.
+            - 1: If no face is detected in the frame.
     """
-    # Validate that the input frame is a valid NumPy array
+    # Check if the input is a valid image frame
     if not isinstance(frame, ndarray):
-        return 0  # Return 0 if the input frame is invalid
-    
-    # Convert the frame to RGB for MediaPipe processing
+        return 0  # Result code 0: Invalid input
+
+    # Convert BGR to RGB (MediaPipe requires RGB format)
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    
-    # Process the frame to detect facial landmarks
+
+    # Process the frame using MediaPipe's face mesh
     results = face_mesh.process(rgb_frame)
 
-    # Check if at least one face is detected
+    # Check if at least one face was found
     if results.multi_face_landmarks:
         for face_landmarks in results.multi_face_landmarks:
+            # Access relevant landmarks for the right eye
             landmarks = face_landmarks.landmark
 
-            # Extract landmark positions for eye aspect ratio calculation
-            # Landmarks are indexed based on MediaPipe's FaceMesh model:
-            # - 386: Top of the eye
-            # - 374: Bottom of the eye
-            # - 263: Outer corner of the right eye
-            # - 362: Inner corner of the right eye
-            eye_top_y = landmarks[386].y
-            eye_bottom_y = landmarks[374].y
-            eye_right_x = landmarks[263].x
-            eye_left_x = landmarks[362].x
+            # Right eye landmark indices (based on MediaPipe's mapping)
+            top = landmarks[386].y
+            bottom = landmarks[374].y
+            outer_corner = landmarks[263].x
+            inner_corner = landmarks[362].x
 
-            # Compute Eye Aspect Ratio (EAR)
-            # EAR is calculated as the vertical distance divided by the horizontal distance
-            eye_aspect_ratio = (eye_bottom_y - eye_top_y) / (eye_right_x - eye_left_x)
+            # Calculate the vertical and horizontal distances
+            vertical_dist = bottom - top
+            horizontal_dist = outer_corner - inner_corner
 
-            # Return True if the EAR exceeds the threshold, indicating the eye is open
-            return eye_aspect_ratio > EAR_THRESHOLD
+            # Compute the Eye Aspect Ratio (EAR)
+            ear = vertical_dist / horizontal_dist
+
+            # Return True if the eye is open (EAR > threshold), else False
+            return ear > EAR_THRESHOLD
     else:
-        # If no face is detected, return 1
-        return 1
+        return 1  # Result code 1: No face detected

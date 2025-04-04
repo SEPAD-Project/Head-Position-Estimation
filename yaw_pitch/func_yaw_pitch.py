@@ -1,5 +1,5 @@
 # by parsasafaie
-# comments by QWEN (:
+# Comments & documentation revised by ChatGPT (:
 
 import cv2
 import mediapipe as mp
@@ -7,69 +7,83 @@ from numpy import ndarray
 
 def yaw_pitch(frame=None):
     """
-    Computes the yaw, pitch, and depth of a detected face in a video frame.
+    Estimate the yaw (left/right rotation), pitch (up/down rotation), and depth of a face in a given video frame.
 
-    This function uses MediaPipe's FaceMesh solution to detect facial landmarks in the input video frame.
-    Based on these landmarks, it calculates the yaw (horizontal rotation), pitch (vertical rotation),
-    and depth (distance from the camera) of the face. If no face is detected, the function returns 1.
+    This function uses MediaPipe's FaceMesh to detect facial landmarks and calculate:
+        - Yaw: Horizontal rotation of the head
+        - Pitch: Vertical tilt of the head
+        - Depth: Approximate distance of the face from the camera
+
+    Based on the estimated yaw and pitch values, the function determines whether the head is positioned
+    within a valid range. The valid range dynamically scales with the estimated depth to ensure flexibility
+    based on the user's distance from the camera.
 
     Args:
-        frame (numpy.ndarray, optional): Input video frame (as a NumPy array). Defaults to None.
+        frame (numpy.ndarray, optional): The input video frame in BGR format. Defaults to None.
 
     Returns:
-        dict: A dictionary containing 'yaw', 'pitch', and 'depth' if a face is detected.
-        int: Returns 0 if the input frame is not a valid NumPy array, or 1 if no face is detected.
+        tuple:
+            - bool: True if the head is in a valid position, False otherwise.
+            - dict: Dictionary with keys:
+                - 'yaw' (float): Horizontal head rotation
+                - 'pitch' (float): Vertical head rotation
+                - 'depth' (float): Estimated distance from the camera
+        int:
+            - 0: If the input frame is not a valid NumPy array.
+            - 1: If no face is detected in the frame.
     """
-    # Validate that the input frame is a NumPy array
+    
+    # Check if input is a valid frame
     if not isinstance(frame, ndarray):
-        return 0  # Return 0 if the input frame is invalid
+        return 0  # Return 0 to indicate invalid input format (result code 0)
 
-    # Initialize MediaPipe FaceMesh for detecting facial landmarks
+    # Initialize MediaPipe FaceMesh for facial landmark detection
     face_mesh = mp.solutions.face_mesh.FaceMesh(
-        static_image_mode=False,  # Process video frames dynamically
-        max_num_faces=1,  # Detect only one face
-        refine_landmarks=False,  # Use basic landmarks (not refined)
-        min_detection_confidence=0.5,  # Minimum detection confidence threshold
-        min_tracking_confidence=0.5  # Minimum tracking confidence threshold
+        static_image_mode=False,      # Enable real-time detection
+        max_num_faces=1,              # Detect only one face (first found)
+        refine_landmarks=False,       # Use standard landmarks
+        min_detection_confidence=0.5, # Confidence threshold for initial face detection
+        min_tracking_confidence=0.5   # Confidence threshold for continuous tracking
     )
 
-    # Flip the frame horizontally to ensure consistent results (mirroring effect)
+    # Flip frame horizontally for a mirrored selfie view
     frame = cv2.flip(frame, 1)
 
-    # Convert the frame from BGR to RGB (required for MediaPipe processing)
+    # Convert BGR to RGB as required by MediaPipe
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    # Process the frame to detect face landmarks
+    # Detect face landmarks
     results = face_mesh.process(rgb_frame)
 
-    # Check if at least one face is detected
+    # Proceed only if a face is detected
     if results.multi_face_landmarks:
         for face_landmarks in results.multi_face_landmarks:
-            # Extract relevant facial landmarks for yaw, pitch, and depth calculations
+            # Extract necessary landmarks for orientation estimation
             landmarks = face_landmarks.landmark
-            nose_tip = landmarks[1]  # Nose tip (Landmark 1)
-            chin = landmarks[152]  # Chin (Landmark 152)
-            left_eye_outer = landmarks[33]  # Outer corner of the left eye (Landmark 33)
-            right_eye_outer = landmarks[263]  # Outer corner of the right eye (Landmark 263)
-            nasion = landmarks[168]  # Nasion (between the eyes, Landmark 168)
+            nose_tip = landmarks[1]
+            chin = landmarks[152]
+            left_eye_outer = landmarks[33]
+            right_eye_outer = landmarks[263]
+            nasion = landmarks[168]  # Point between the eyes
 
-            # Calculate depth estimation using the Z coordinate of the nose tip
-            # The Z coordinate is scaled by 100 for better readability
-            depth = abs(nose_tip.z) * 100
+            # Estimate depth using the Z-coordinate of the nose tip
+            depth = abs(nose_tip.z) * 100  # Scaled for easier interpretation
 
-            # Compute yaw (horizontal head rotation)
-            # Yaw is calculated based on the difference in X-coordinates between the eyes and the nose tip
+            # Calculate yaw based on horizontal asymmetry between nose and eyes
             yaw = ((right_eye_outer.x - nose_tip.x) - (nose_tip.x - left_eye_outer.x)) * 100
 
-            # Compute pitch (vertical head rotation)
-            # Pitch is calculated based on the difference in Y-coordinates between the chin, nose tip, and nasion
+            # Calculate pitch using vertical distances between chin, nose, and nasion
             pitch = ((chin.y - nose_tip.y) - (nose_tip.y - nasion.y)) * 100
 
-            yaw_min, yaw_max = -2 * depth, 2 * depth  # Yaw range proportional to depth
-            pitch_min, pitch_max = -0.2 * depth, 1.4 * depth # Pitch range proportional to depth
+            # Define acceptable yaw and pitch ranges relative to depth
+            yaw_min, yaw_max = -2 * depth, 2 * depth
+            pitch_min, pitch_max = -0.2 * depth, 1.4 * depth
 
-            # Check if yaw and pitch fall within the calibrated area
-            return yaw_min <= yaw <= yaw_max and pitch_min <= pitch <= pitch_max, {'yaw':yaw, 'pitch':pitch, 'depth':depth}      
+            # Return whether head is in a valid position, along with computed values
+            return yaw_min <= yaw <= yaw_max and pitch_min <= pitch <= pitch_max, {
+                'yaw': yaw,
+                'pitch': pitch,
+                'depth': depth
+            }
     else:
-        # If no face is detected, return 1
-        return 1
+        return 1  # Return 1 to indicate no face detected (result code 1)

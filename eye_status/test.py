@@ -1,45 +1,45 @@
 # by parsasafaie
-# comments by QWEN (:
+# Comments improved by ChatGPT (:
 
 # Import necessary libraries
 import cv2  # OpenCV for video capture and image processing
-from time import sleep  # To introduce delays between iterations
-from func_eye_status import is_eye_open  # Import the `is_eye_open` function from the external module
+from time import sleep  # To introduce delays between frame checks
+from func_eye_status import is_eye_open  # Function to determine if the eye is open
 
-# Initialize video capture using OpenCV
-# The argument `0` specifies the default camera (usually the built-in webcam)
+# Initialize the webcam (default camera: index 0)
 cap = cv2.VideoCapture(0)
 
-# Start an infinite loop to continuously process frames from the camera
+# Start a loop to continuously capture and process frames
 while True:
-    # Read a frame from the video capture
+    # Read a frame from the webcam
     ret, frame = cap.read()
 
-    # Check if the frame was successfully captured
+    # If frame capture fails, print an error and exit the loop
     if not ret:
-        print("RESULT: can't open video capture.")
-        break  # Exit the loop if the frame cannot be read
+        print("RESULT: Can't open video capture.")
+        break
 
-    # Call the `is_eye_open` function to detect whether the eye is open or closed
+    # Use the eye status detection function on the current frame
     result = is_eye_open(frame=frame)
 
-    # Process the result returned by the `is_eye_open` function
+    # Handle the function's output based on its type
     if isinstance(result, bool):
-        # If the result is a boolean, it indicates whether the eye is open or closed
-        print(f'RESULT: the result is {str(result)}')
+        # If a boolean is returned, display whether the eye is open (True) or closed (False)
+        print(f"RESULT: The eye is {'open' if result else 'closed'}.")
         print("==============================")
+
     elif isinstance(result, int):
-        # If the result is an integer, it represents a status code:
-        # - `0`: Invalid input frame
-        # - `1`: No face detected
-        print(f'RESULT: the result code is {str(result)}')
+        # Handle known result codes:
+        # 0 → Invalid input frame
+        # 1 → No face detected
+        print(f"RESULT: Status code = {result}")
         print("==============================")
+
     else:
-        # Handle unexpected return types (e.g., None or other types)
-        print(f'WARNING: there is an unknown returned value:')
+        # Catch any unexpected return types
+        print("WARNING: Unknown return value from is_eye_open():")
         print(result)
         print("==============================")
 
-    # Introduce a delay (in seconds) before processing the next frame
-    # This can be adjusted based on the desired frame rate or processing speed
+    # Wait 3 seconds before checking the next frame
     sleep(3)

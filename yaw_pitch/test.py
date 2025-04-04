@@ -1,45 +1,44 @@
 # by parsasafaie
-# comments by QWEN (:
+# Comments improved by ChatGPT (:
 
 # Import necessary libraries
 import cv2  # OpenCV for video capture and image processing
-from time import sleep  # To introduce delays between iterations
-from func_yaw_pitch import yaw_pitch  # Import the yaw_pitch function from the external module
+from time import sleep  # Used to introduce delay between frame processing
+from func_yaw_pitch import yaw_pitch  # Import the custom function for head orientation estimation
 
-# Initialize video capture using OpenCV
-# The argument `0` specifies the default camera (usually the built-in webcam)
+# Initialize the default webcam (device index 0)
 cap = cv2.VideoCapture(0)
 
-# Start an infinite loop to continuously process frames from the camera
+# Start capturing and processing frames in a loop
 while True:
-    # Read a frame from the video capture
+    # Read a frame from the webcam
     ret, frame = cap.read()
 
-    # Check if the frame was successfully captured
+    # If frame capture fails, print error and exit the loop
     if not ret:
-        print("RESULT: can't open video capture.")
-        break  # Exit the loop if the frame cannot be read
+        print("RESULT: Can't open video capture.")
+        break
 
-    # Call the `yaw_pitch` function to compute yaw, pitch, and depth
-    result = yaw_pitch(frame=frame)[1]
+    # Call the head orientation function with the current frame
+    status, data = yaw_pitch(frame=frame)
 
-    # Process the result returned by the `yaw_pitch` function
-    if isinstance(result, dict):
-        # If the result is a dictionary, extract and print yaw, pitch, and depth
-        print(f"yaw: {result['yaw']}")
-        print(f"pitch: {result['pitch']}")
-        print(f"depth: {result['depth']}")
+    # If the function returns a valid dictionary, print the orientation data
+    if isinstance(data, dict):
+        print(f"yaw: {data['yaw']}")
+        print(f"pitch: {data['pitch']}")
+        print(f"depth: {data['depth']}")
         print("==============================")
-    elif isinstance(result, int):
-        # If the result is an integer, print the numeric result
-        print(f'RESULT: {str(result)}')
+
+    # If the function returns an error/status code (e.g., 0 or 1), print it
+    elif isinstance(data, int) or isinstance(status, int):
+        print(f"RESULT: {status}")
         print("==============================")
+
+    # If something unexpected is returned, print a warning
     else:
-        # Handle unexpected return types (e.g., None or other types)
-        print(f'WARNING: there is an unknown returned value:')
-        print(result)
+        print("WARNING: Unknown return value from yaw_pitch():")
+        print(data)
         print("==============================")
 
-    # Introduce a delay (in seconds) before processing the next frame
-    # This can be adjusted based on the desired frame rate or processing speed
+    # Wait for 3 seconds before capturing the next frame
     sleep(3)

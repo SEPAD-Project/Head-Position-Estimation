@@ -10,6 +10,11 @@ from func_looking_result import looking_result  # Import the `looking_result` fu
 # The argument `0` specifies the default camera (usually the built-in webcam)
 cap = cv2.VideoCapture(0)
 
+# Check if the camera is opened correctly
+if not cap.isOpened():
+    print("ERROR: Unable to access the camera.")
+    exit()
+
 # Start an infinite loop to continuously process frames from the camera
 while True:
     # Read a frame from the video capture
@@ -17,14 +22,12 @@ while True:
 
     # Check if the frame was successfully captured
     if not ret:
-        print("RESULT: can't open video capture.")
+        print("ERROR: Can't read the video frame.")
         break  # Exit the loop if the frame cannot be read
 
     # Call the `looking_result` function to determine if the student is looking at the monitor
     result = looking_result(
-        face_detector_path="haarcascade_frontalface_default.xml",  # Path to the Haar Cascade XML file for face detection
-        face_recognizer_path="face_recognition_sface_2021dec.onnx",  # Path to the face recognition model file
-        ref_image_path="ref.jpg",  # Path to the reference image (change this to your reference image path)
+        ref_image_path="ref.jpg",  # Path to the reference image for face comparison (adjust this path)
         frame=frame  # The current frame from the camera
     )
 
@@ -36,14 +39,18 @@ while True:
         # - `3`: Eyes are closed.
         # - `4`: Yaw or pitch outside the valid range.
         # - `5`: Student is looking at the monitor.
-        print(f'RESULT: the result code is {str(result)}')
+        print(f"RESULT: {str(result)}")
         print("==============================")
     else:
         # Handle unexpected return types (e.g., None or other types)
-        print(f'WARNING: there is an unknown returned value:')
+        print("WARNING: Unknown return value:")
         print(result)
         print("==============================")
 
     # Introduce a delay (in seconds) before processing the next frame
-    # This can be adjusted based on the desired frame rate or processing speed
+    # Adjust this based on the desired frame rate or processing speed
     sleep(1)
+
+# Release the video capture object and close all OpenCV windows after the loop ends
+cap.release()
+cv2.destroyAllWindows()
