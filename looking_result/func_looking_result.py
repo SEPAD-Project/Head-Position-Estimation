@@ -65,11 +65,13 @@ def looking_result(ref_image_path=None,
         return 3  # Return 3 if the eyes are closed
 
     # Compute yaw, pitch, and depth using the `yaw_pitch` function
-    result = yaw_pitch(frame=frame)[0]
+    result = yaw_pitch(frame=frame)
 
-    # Check if `yaw_pitch` returned valid results (a dictionary)
-    if not isinstance(result, bool):
+    # Check if `yaw_pitch` returned valid results (a tuple)
+    if not isinstance(result, tuple):
         return result  # Return the error code from `yaw_pitch` if invalid
+    else:
+        result = result[0]
 
     # Check if yaw and pitch fall within the calibrated area
     if result:
