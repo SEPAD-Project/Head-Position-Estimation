@@ -41,7 +41,7 @@ def yaw_pitch(frame=None):
     face_mesh = mp.solutions.face_mesh.FaceMesh(
         static_image_mode=False,      # Enable real-time detection
         max_num_faces=1,              # Detect only one face (first found)
-        refine_landmarks=False,       # Use standard landmarks
+        refine_landmarks=True,       # Use standard landmarks
         min_detection_confidence=0.5, # Confidence threshold for initial face detection
         min_tracking_confidence=0.5   # Confidence threshold for continuous tracking
     )
