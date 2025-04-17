@@ -35,12 +35,22 @@ cd Head-Position-Estimation
    pip install -r requirements.txt
    ``` 
 
+## Required Dependencies For InsightFace
+* On Windows:
+  1. Download the installer from [vs-build-tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+  2. Run the installer and select **"C++ Desktop Development"** during install.
+  3. Restart PC.
+
+* On Linux:
+
+  just run this in terminal:
+  ```bash
+    sudo apt-get install build-essential
+  ```
+
 ## Downloading Required Models
-This project requires `OpenCV` models to function properly. These models are available in the `models` folder of the repository and need to be placed in:
-```bash
-C:\sap-project\opencv
-```
-Alternatively, you can download and place them automatically by running:
+This project requires `InsightFace` models to function properly.
+you can download and place them automatically by running:
 ```bash
 python download_models.py
 ```
