@@ -4,6 +4,7 @@
 import cv2
 import sys
 from pathlib import Path
+from time import sleep
 
 # Set up module paths to include custom directories for yaw_pitch, face_recognition, and eye_status
 parent_dir = Path(__file__).resolve().parent.parent
@@ -58,6 +59,7 @@ while True:
 
     # Display the frame with the overlayed results
     cv2.imshow("Face Tracking", frame)
+    sleep(2)
 
     # Exit the loop if the 'q' key is pressed
     if cv2.waitKey(1) & 0xFF == ord('q'):
