@@ -1,74 +1,45 @@
 # by parsasafaie
 # Comments improved by ChatGPT (:
 
+import numpy as np
 import cv2
-
-# Paths to the face detection and recognition models
-OPENCV_FACE_DETECTOR_PATH = r"c:\\sap-project\\opencv\\haarcascade_frontalface_default.xml"
-OPENCV_FACE_RECOGNIZER_PATH = r"c:\\sap-project\\opencv\\face_recognition_sface_2021dec.onnx"
-
-def extract_feature(face_detector, face_recognizer, image):
-    """
-    Extracts a facial feature vector from the input image.
-
-    This function detects a face in the image using a Haar Cascade classifier
-    and then uses a face recognizer model to extract a 128-d or 512-d feature vector.
-
-    Args:
-        face_detector (cv2.CascadeClassifier): Initialized Haar Cascade face detector.
-        face_recognizer (cv2.FaceRecognizerSF): Initialized face recognizer.
-        image (numpy.ndarray): Image to process (typically BGR format from OpenCV).
-
-    Returns:
-        numpy.ndarray: Feature vector representing the face if detection is successful.
-        int: 1 if no face is detected in the input image.
-    """
-    # Detect faces in the image
-    faces = face_detector.detectMultiScale(image, scaleFactor=1.1, minNeighbors=4)
-
-    # Return 1 if no faces are detected
-    if len(faces) == 0:
-        return 1
-
-    # Extract the region of interest (first detected face)
-    x, y, w, h = faces[0]
-    face_crop = image[y:y+h, x:x+w]
-
-    # Extract and return the facial features
-    return face_recognizer.feature(face_crop)
+from insightface.app import FaceAnalysis
+from os import remove
 
 
 def compare(ref_image_path, new_frame):
-    """
-    Compares a reference image and a new frame to verify identity.
+    TMP_IMG_PATH = 'c:/sap-project/tmp.jpg'
 
-    Loads a known reference image and compares it with the current frame
-    by computing facial features and checking similarity.
+    # Load model
+    app = FaceAnalysis(name="buffalo_l", providers=["CPUExecutionProvider"])
+    app.prepare(ctx_id=0)
 
-    Args:
-        ref_image_path (str): Path to the reference image (of the known identity).
-        new_frame (numpy.ndarray): New frame captured from webcam or video.
+    # Load and convert images to RGB
+    def load_img(path):
+        ref = cv2.imread(path)
+        return cv2.cvtColor(ref, cv2.COLOR_BGR2RGB)
+    
+    def save_frame(frame, path):
+        cv2.imwrite(path, frame)
+        return path
 
-    Returns:
-        bool: True if the faces match (similarity > 0.6), False otherwise.
-        int: 0 if the reference image cannot be loaded.
-    """
-    # Load the face detection and recognition models
-    face_detector = cv2.CascadeClassifier(OPENCV_FACE_DETECTOR_PATH)
-    face_recognizer = cv2.FaceRecognizerSF.create(OPENCV_FACE_RECOGNIZER_PATH, "")
+    img1 = load_img(ref_image_path)
+    img2 = load_img(save_frame(new_frame, TMP_IMG_PATH))
 
-    # Load the reference image
-    image = cv2.imread(ref_image_path)
-    if image is None:
-        return 0  # Couldn't load the reference image
+    faces1 = app.get(img1)
+    faces2 = app.get(img2)
+    
+    remove(TMP_IMG_PATH)
+    
+    # Check for face detection
+    if not faces1 or not faces2:
+        return 1
+    else:
+        emb1 = faces1[0].embedding
+        emb2 = faces2[0].embedding
 
-    # Extract features from both images
-    ref_features = extract_feature(face_detector, face_recognizer, image)
-    feature = extract_feature(face_detector, face_recognizer, new_frame)
+        # Cosine similarity
+        sim = np.dot(emb1, emb2) / (np.linalg.norm(emb1) * np.linalg.norm(emb2))
 
-    # Compare the two feature vectors
-    if feature is not None:
-        similarity = face_recognizer.match(feature, ref_features, cv2.FaceRecognizerSF_FR_COSINE)
-
-        # Check similarity threshold (higher means more similar)
-        return similarity > 0.6
+        return True if sim > 0.5 else False
+    
