@@ -3,17 +3,17 @@
 
 from urllib.request import urlretrieve
 import os
+import zipfile
 
-# Define local file paths for OpenCV models
-OPENCV_FACE_DETECTOR_PATH = r"c:\\sap-project\\opencv\\haarcascade_frontalface_default.xml"
-OPENCV_FACE_RECOGNIZER_PATH = r"c:\\sap-project\\opencv\\face_recognition_sface_2021dec.onnx"
+# Define local file paths for buffalo models
+BUFFALO_MODEL_PATH = r"C:\\sap-project\\.insightface\\models\\buffalo_l.zip"
 
 # Ensure the target directory exists (create if not)
-os.makedirs(r"c:\\sap-project\\opencv", exist_ok=True)
+os.makedirs(r"c:\\sap-project\\models", exist_ok=True)
 
 def download():
     """
-    Downloads the required OpenCV face detection and recognition models from GitHub.
+    Downloads the required insightface detection and recognition models from GitHub.
 
     Returns:
         bool: True if both downloads succeed, False otherwise.
@@ -21,15 +21,12 @@ def download():
     try:
         # Download the face recognition model
         urlretrieve(
-            "https://github.com/SAP-Program/Head-Position-Estimation/raw/refs/heads/main/models/face_recognition_sface_2021dec.onnx",
-            OPENCV_FACE_RECOGNIZER_PATH
+            "https://github.com/deepinsight/insightface/releases/download/v0.7/buffalo_l.zip",
+            BUFFALO_MODEL_PATH
         )
 
-        # Download the face detector model
-        urlretrieve(
-            "https://github.com/SAP-Program/Head-Position-Estimation/raw/refs/heads/main/models/haarcascade_frontalface_default.xml",
-            OPENCV_FACE_DETECTOR_PATH
-        )
+        with zipfile.ZipFile(BUFFALO_MODEL_PATH, 'r') as zip_ref:
+            zip_ref.extractall(BUFFALO_MODEL_PATH[:-4])
 
         return True
     except Exception as e:

@@ -3,15 +3,15 @@
 
 import numpy as np
 import cv2
+import os
 from insightface.app import FaceAnalysis
-from os import remove
 
 
 def compare(ref_image_path, new_frame):
     TMP_IMG_PATH = 'c:/sap-project/tmp.jpg'
 
     # Load model
-    app = FaceAnalysis(name="buffalo_l", providers=["CPUExecutionProvider"])
+    app = FaceAnalysis(name="buffalo_l", providers=["CPUExecutionProvider"], root='c:/sap-project/.insightface')
     app.prepare(ctx_id=0)
 
     # Load and convert images to RGB
@@ -29,8 +29,8 @@ def compare(ref_image_path, new_frame):
     faces1 = app.get(img1)
     faces2 = app.get(img2)
     
-    remove(TMP_IMG_PATH)
-    
+    os.remove(TMP_IMG_PATH)
+
     # Check for face detection
     if not faces1 or not faces2:
         return 1
