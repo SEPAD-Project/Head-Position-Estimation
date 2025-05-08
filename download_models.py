@@ -9,7 +9,7 @@ import zipfile
 BUFFALO_MODEL_PATH = r"C:\\sap-project\\.insightface\\models\\buffalo_l.zip"
 
 # Ensure the target directory exists (create if not)
-os.makedirs(r"c:\\sap-project\\models", exist_ok=True)
+os.makedirs(r"c:\\sap-project\\.insightface\\models", exist_ok=True)
 
 def download():
     """
