@@ -1,12 +1,12 @@
 # Head Position Estimation
-This repository is a part of the SAP project and was developed by [Parsa Safaie](https://github.com/parsasafaie) to handle image processing tasks within the larger SAP system.
+This repository is a part of the SEPAD project and was developed by [Parsa Safaie](https://github.com/parsasafaie) to handle image processing tasks within the larger SEPAD system.
 
 Click [here](https://github.com/SAP-Program) to visit the SAP organization.
 
 ## Repository Cloning
 To clone this repository, open your terminal in the desired directory and run:
 ```bash
-git clone https://github.com/SAP-Program/Head-Position-Estimation.git
+git clone https://github.com/SEPAD-Project/Head-Position-Estimation.git
 ```
 
 Then, navigate to the repository directory:
