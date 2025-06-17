@@ -1,7 +1,7 @@
 # Head Position Estimation
 This repository is a part of the SEPAD project and was developed by [Parsa Safaie](https://github.com/parsasafaie) to handle image processing tasks within the larger SEPAD system.
 
-Click [here](https://github.com/SAP-Program) to visit the SAP organization.
+Click [here](https://github.com/SEPAD-Project) to visit the SEPAD organization.
 
 ## Repository Cloning
 To clone this repository, open your terminal in the desired directory and run:
