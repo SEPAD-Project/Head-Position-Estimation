@@ -1,3 +1,6 @@
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/SEPAD-Project/Head-Position-Estimation/blob/main/README.md)
+[![fa](https://img.shields.io/badge/lang-fa-blue.svg)](https://github.com/SEPAD-Project/Head-Position-Estimation/blob/main/README.fa.md)
+
 # Head Position Estimation
 This repository is a part of the SEPAD project and was developed by [Parsa Safaie](https://github.com/parsasafaie) to handle image processing tasks within the larger SEPAD system.
 

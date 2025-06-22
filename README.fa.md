@@ -1,3 +1,6 @@
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/SEPAD-Project/Head-Position-Estimation/blob/main/README.md)
+[![fa](https://img.shields.io/badge/lang-fa-blue.svg)](https://github.com/SEPAD-Project/Head-Position-Estimation/blob/main/README.fa.md)
+
 # برآورد موقعیت سر (Head Position Estimation)
 این مخزن گیت، بخشی از پروژه SEPAD است و توسط [پارسا صفايي](https://www.github.com/parsasafaie)   به‌منظور انجام وظایف پردازش تصویر در سیستم بزرگ‌تر SEPAD توسعه داده شده است.
 
