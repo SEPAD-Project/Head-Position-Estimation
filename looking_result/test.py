@@ -6,6 +6,14 @@ import cv2  # OpenCV for video capture and image processing
 from time import sleep  # To introduce delays between iterations
 from func_looking_result import looking_result  # Function to determine attention via face analysis
 import mediapipe as mp  # MediaPipe for face landmark detection
+from insightface.app import FaceAnalysis  # For facial feature extraction and recognition
+import sys
+from pathlib import Path
+
+parent_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(parent_dir))
+
+from config import INSIGHTFACE_DIR
 
 # Initialize webcam (device index 0 = default camera)
 cap = cv2.VideoCapture(0)
@@ -15,6 +23,13 @@ face_mesh = mp.solutions.face_mesh.FaceMesh(
     refine_landmarks=True,
     max_num_faces=1
 )
+
+app = FaceAnalysis(
+    name="buffalo_l",
+    providers=["CPUExecutionProvider"],  # Can change to "CUDAExecutionProvider" for GPU
+    root=INSIGHTFACE_DIR
+)
+app.prepare(ctx_id=0)  # Prepare the model
 
 # Verify that the webcam opened successfully
 if not cap.isOpened():
@@ -34,7 +49,8 @@ while True:
     result = looking_result(
         ref_image_path="ref.jpg",   # Path to reference face image
         frame=frame,                # Current frame from the camera
-        face_mesh_obj=face_mesh     # Shared FaceMesh instance for efficiency
+        face_mesh_obj=face_mesh,    # Shared FaceMesh instance for efficiency
+        app=app
     )
 
     # Interpret the result (all return codes are integers)

@@ -7,19 +7,23 @@ import sys  # To modify the Python path dynamically
 import cv2  # OpenCV for image processing and face detection
 from numpy import ndarray  # To validate input frames as NumPy arrays
 import mediapipe as mp  # MediaPipe for facial landmark detection
+from insightface.app import FaceAnalysis
 
 # Add the parent directory containing the required modules to the Python path
 parent_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(parent_dir))
 sys.path.append(str(parent_dir / "yaw_pitch"))
 sys.path.append(str(parent_dir / "face_recognition"))
 sys.path.append(str(parent_dir / "eye_status"))
+
+from config import INSIGHTFACE_DIR
 
 # Import custom analysis functions
 from func_yaw_pitch import yaw_pitch        # For head orientation estimation
 from compare import compare                 # For face verification
 from func_eye_status import is_eye_open     # For eye status detection
 
-def looking_result(ref_image_path=None, frame=None, face_mesh_obj=None):
+def looking_result(ref_image_path=None, frame=None, face_mesh_obj=None, app=None):
     """
     Determines if a person (e.g., student) is attentively looking at the monitor.
 
@@ -63,9 +67,18 @@ def looking_result(ref_image_path=None, frame=None, face_mesh_obj=None):
         )
         internal_model = True
 
+    if app is None:
+        # If no FaceAnalysis object provided, create one
+        app = FaceAnalysis(
+            name="buffalo_l",
+            providers=["CPUExecutionProvider"],  # Can change to "CUDAExecutionProvider" for GPU
+            root=INSIGHTFACE_DIR
+        )
+        app.prepare(ctx_id=0)  # Prepare the model
+
     try:
         # Face verification
-        compare_result = compare(ref_image_path=ref_image_path, new_frame=frame)
+        compare_result = compare(ref_image_path=ref_image_path, new_frame=frame, app=app)
         if compare_result == False:
             return 2
         if compare_result == 0 or compare_result == 1:
