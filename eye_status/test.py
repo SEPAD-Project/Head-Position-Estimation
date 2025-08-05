@@ -5,9 +5,14 @@
 import cv2  # OpenCV for video capture and image processing
 from time import sleep  # To introduce delays between frame checks
 from func_eye_status import is_eye_open  # Function to determine if the eye is open
+import mediapipe as mp
 
 # Initialize the webcam (default camera: index 0)
 cap = cv2.VideoCapture(0)
+
+face_mesh = mp.solutions.face_mesh.FaceMesh(
+refine_landmarks=True,
+max_num_faces=1)
 
 # Start a loop to continuously capture and process frames
 while True:
@@ -20,7 +25,7 @@ while True:
         break
 
     # Use the eye status detection function on the current frame
-    result = is_eye_open(frame=frame)
+    result = is_eye_open(frame=frame, face_mesh_obj=face_mesh)
 
     # Handle the function's output based on its type
     if isinstance(result, bool):

@@ -8,14 +8,7 @@ from numpy import ndarray
 # Threshold value for Eye Aspect Ratio (EAR) — determines if the eye is open
 EAR_THRESHOLD = 0.2
 
-# Initialize MediaPipe FaceMesh only once (global) for performance
-# `refine_landmarks=True` enables more accurate detection of key points like eyes
-face_mesh = mp.solutions.face_mesh.FaceMesh(
-    refine_landmarks=True,
-    max_num_faces=1
-)
-
-def is_eye_open(frame=None):
+def is_eye_open(frame=None, face_mesh_obj=None):
     """
     Determines whether the right eye is open based on Eye Aspect Ratio (EAR).
 
@@ -40,6 +33,13 @@ def is_eye_open(frame=None):
     # Check if the input is a valid image frame
     if not isinstance(frame, ndarray):
         return 0  # Result code 0: Invalid input
+    
+    if face_mesh_obj is None:
+        face_mesh = mp.solutions.face_mesh.FaceMesh(
+        refine_landmarks=True,
+        max_num_faces=1)
+    else:
+        face_mesh = face_mesh_obj
 
     # Convert BGR to RGB (MediaPipe requires RGB format)
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)

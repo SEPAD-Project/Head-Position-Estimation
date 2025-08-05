@@ -5,10 +5,15 @@
 import cv2  # OpenCV for video capture and image processing
 from time import sleep  # To introduce delays between iterations
 from func_looking_result import looking_result  # Import the `looking_result` function from the external module
+import mediapipe as mp
 
 # Initialize video capture using OpenCV
 # The argument `0` specifies the default camera (usually the built-in webcam)
 cap = cv2.VideoCapture(0)
+
+face_mesh = mp.solutions.face_mesh.FaceMesh(
+refine_landmarks=True,
+max_num_faces=1)
 
 # Check if the camera is opened correctly
 if not cap.isOpened():
@@ -28,7 +33,8 @@ while True:
     # Call the `looking_result` function to determine if the student is looking at the monitor
     result = looking_result(
         ref_image_path="ref.jpg",  # Path to the reference image for face comparison (adjust this path)
-        frame=frame  # The current frame from the camera
+        frame=frame,  # The current frame from the camera
+        face_mesh_obj=face_mesh
     )
 
     # Process the result returned by the `looking_result` function

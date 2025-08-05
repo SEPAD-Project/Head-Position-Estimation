@@ -5,7 +5,7 @@ import cv2
 import mediapipe as mp
 from numpy import ndarray
 
-def yaw_pitch(frame=None):
+def yaw_pitch(frame=None, face_mesh_obj=None):
     """
     Estimate the yaw (left/right rotation), pitch (up/down rotation), and depth of a face in a given video frame.
 
@@ -37,14 +37,12 @@ def yaw_pitch(frame=None):
     if not isinstance(frame, ndarray):
         return 0  # Return 0 to indicate invalid input format (result code 0)
 
-    # Initialize MediaPipe FaceMesh for facial landmark detection
-    face_mesh = mp.solutions.face_mesh.FaceMesh(
-        static_image_mode=False,      # Enable real-time detection
-        max_num_faces=1,              # Detect only one face (first found)
-        refine_landmarks=True,       # Use standard landmarks
-        min_detection_confidence=0.5, # Confidence threshold for initial face detection
-        min_tracking_confidence=0.5   # Confidence threshold for continuous tracking
-    )
+    if face_mesh_obj is None:
+        face_mesh = mp.solutions.face_mesh.FaceMesh(
+        refine_landmarks=True,
+        max_num_faces=1)
+    else:
+        face_mesh = face_mesh_obj
 
     # Flip frame horizontally for a mirrored selfie view
     frame = cv2.flip(frame, 1)

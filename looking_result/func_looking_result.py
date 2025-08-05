@@ -6,6 +6,7 @@ from pathlib import Path  # To handle file paths in a platform-independent way
 import sys  # To modify the Python path dynamically
 import cv2  # OpenCV for image processing and face detection
 from numpy import ndarray  # To validate input frames as NumPy arrays
+import mediapipe as mp
 
 # Add the parent directory containing the required modules to the Python path
 # This ensures that custom modules from subdirectories can be imported
@@ -20,7 +21,7 @@ from compare import compare  # Function to compare faces using face recognition
 from func_eye_status import is_eye_open  # Function to detect if the eye is open
 
 def looking_result(ref_image_path=None, 
-                   frame=None):
+                   frame=None, face_mesh_obj=None):
     """
     Determines if a student is looking at the monitor by analyzing yaw, pitch, and depth.
 
@@ -61,11 +62,11 @@ def looking_result(ref_image_path=None,
         return 2  # Return 2 if the face does not match the reference image
 
     # Check if the eyes are open
-    if is_eye_open(frame) == False:
+    if is_eye_open(frame, face_mesh_obj=face_mesh_obj) == False:
         return 3  # Return 3 if the eyes are closed
 
     # Compute yaw, pitch, and depth using the `yaw_pitch` function
-    result = yaw_pitch(frame=frame)
+    result = yaw_pitch(frame=frame, face_mesh_obj=face_mesh_obj)
 
     # Check if `yaw_pitch` returned valid results (a tuple)
     if not isinstance(result, tuple):

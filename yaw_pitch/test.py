@@ -5,9 +5,14 @@
 import cv2  # OpenCV for video capture and image processing
 from time import sleep  # Used to introduce delay between frame processing
 from func_yaw_pitch import yaw_pitch  # Import the custom function for head orientation estimation
+import mediapipe as mp
 
 # Initialize the default webcam (device index 0)
 cap = cv2.VideoCapture(0)
+
+face_mesh = mp.solutions.face_mesh.FaceMesh(
+refine_landmarks=True,
+max_num_faces=1)
 
 # Start capturing and processing frames in a loop
 while True:
@@ -20,7 +25,7 @@ while True:
         break
 
     # Call the head orientation function with the current frame
-    status, data = yaw_pitch(frame=frame)
+    status, data = yaw_pitch(frame=frame, face_mesh_obj=face_mesh)
 
     # If the function returns a valid dictionary, print the orientation data
     if isinstance(data, dict):
