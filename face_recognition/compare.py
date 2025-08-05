@@ -3,43 +3,64 @@
 
 import numpy as np
 import cv2
-import os
+from pathlib import Path
 from insightface.app import FaceAnalysis
 
 
-def compare(ref_image_path, new_frame):
-    TMP_IMG_PATH = 'c:/sap-project/tmp.jpg'
+def compare(ref_image_path, new_frame, app=None):
+    """
+    Compare the face in a new frame with a reference image using FaceAnalysis embeddings.
 
-    # Load model
-    app = FaceAnalysis(name="buffalo_l", providers=["CPUExecutionProvider"], root='c:/sap-project/.insightface')
-    app.prepare(ctx_id=0)
+    Args:
+        ref_image_path (str | Path): Path to the reference image.
+        new_frame (np.ndarray): OpenCV BGR frame.
+        app (FaceAnalysis, optional): Optional pre-loaded FaceAnalysis model instance.
 
-    # Load and convert images to RGB
-    def load_img(path):
-        ref = cv2.imread(path)
-        return cv2.cvtColor(ref, cv2.COLOR_BGR2RGB)
-    
-    def save_frame(frame, path):
-        cv2.imwrite(path, frame)
-        return path
+    Returns:
+        bool | None:
+            - True: Faces match (cosine similarity > 0.5)
+            - False: Faces do not match
+            - None: Face not detected in one or both images
+    """
+    # Prepare the model if not provided
+    if app is None:
+        app = FaceAnalysis(
+            name="buffalo_l",
+            providers=["CPUExecutionProvider"],
+            root=str('c:/sap-project/.insightface')
+        )
+        app.prepare(ctx_id=0)
 
-    img1 = load_img(ref_image_path)
-    img2 = load_img(save_frame(new_frame, TMP_IMG_PATH))
+    # Save temporary frame image (used for consistent loading format)
+    tmp_path = Path.cwd() / "tmp_frame.jpg"
+    cv2.imwrite(str(tmp_path), new_frame)
 
+    # Load and convert both images to RGB
+    def load_rgb(path):
+        img = cv2.imread(str(path))
+        return cv2.cvtColor(img, cv2.COLOR_BGR2RGB) if img is not None else None
+
+    img1 = load_rgb(ref_image_path)
+    img2 = load_rgb(tmp_path)
+
+    # Clean up temp image
+    tmp_path.unlink(missing_ok=True)
+
+    if img1 is None or img2 is None:
+        return None
+
+    # Run face detection
     faces1 = app.get(img1)
     faces2 = app.get(img2)
-    
-    os.remove(TMP_IMG_PATH)
 
-    # Check for face detection
     if not faces1 or not faces2:
-        return 1
-    else:
-        emb1 = faces1[0].embedding
-        emb2 = faces2[0].embedding
+        return None
 
-        # Cosine similarity
-        sim = np.dot(emb1, emb2) / (np.linalg.norm(emb1) * np.linalg.norm(emb2))
+    # Get embeddings
+    emb1 = faces1[0].embedding
+    emb2 = faces2[0].embedding
 
-        return True if sim > 0.5 else False
-    
+    # Cosine similarity
+    sim = np.dot(emb1, emb2) / (np.linalg.norm(emb1) * np.linalg.norm(emb2))
+
+    return sim > 0.5

@@ -1,46 +1,69 @@
 # by parsasafaie
 # Comments improved by ChatGPT (:
 
-# Import necessary libraries
 import cv2  # OpenCV for video capture and image processing
 from time import sleep  # Used to pause execution between frames
-from compare import compare  # Import face comparison function from external module
+from compare import compare  # Face comparison function (uses embedding similarity)
+from pathlib import Path  # For validating input path in a platform-independent way
+from insightface.app import FaceAnalysis  # For facial feature extraction and recognition
 
-# Initialize webcam video capture (0 = default camera)
+# Ask user to provide the path to the reference image
+ref_image_path = input("Enter the path to the reference image: ").strip()
+ref_image_path = Path(ref_image_path)
+
+# Validate the provided path to ensure it's a file
+if not ref_image_path.exists() or not ref_image_path.is_file():
+    print("ERROR: The provided reference image path is invalid.")
+    exit()
+
+# Initialize webcam (device index 0 refers to the default webcam)
 cap = cv2.VideoCapture(0)
 
-# Continuously capture and process video frames
+# Check if the webcam was successfully accessed
+if not cap.isOpened():
+    print("ERROR: Unable to access the camera.")
+    exit()
+
+# Load the FaceAnalysis model only once outside the loop
+app = FaceAnalysis(
+    name="buffalo_l",
+    providers=["CPUExecutionProvider"],  # Can change to "CUDAExecutionProvider" for GPU
+    root='c:/sap-project/.insightface'
+)
+app.prepare(ctx_id=0)  # Prepare the model (once)
+
+# Start processing frames continuously
 while True:
-    # Read a frame from the video feed
+    # Capture a single frame from the webcam
     ret, frame = cap.read()
 
-    # If frame capture fails, display error and exit
     if not ret:
-        print("RESULT: can't open video capture.")
+        print("ERROR: Can't read frame from webcam.")
         break
 
-    # Compare the detected face with the reference image
+    # Compare the current frame to the reference image using the shared FaceAnalysis instance
     result = compare(
-        ref_image_path="parsa.jpg",  # Path to the stored reference face image
-        new_frame=frame               # Current video frame to compare
+        ref_image_path=ref_image_path,
+        new_frame=frame,
+        app=app
     )
 
-    # Interpret the result of the face comparison
-    if isinstance(result, bool):
-        # If result is a boolean: True means faces match, False means they don't
-        print(f'RESULT: the result is {str(result)}')
-        print("==============================")
-    elif isinstance(result, int):
-        # Handle known error codes:
-        # 0 = Reference image could not be loaded
-        # 1 = Face not detected in reference image or current frame
-        print(f'RESULT: the result code is {str(result)}')
-        print("==============================")
+    # Handle and interpret result from the comparison
+    if result is True:
+        print("RESULT: Faces match ✅")
+    elif result is False:
+        print("RESULT: Faces do NOT match ❌")
+    elif result is None:
+        # ✅ This case handles failure in face detection or image loading
+        print("RESULT: Face not detected or image could not be loaded ⚠️")
     else:
-        # Handle unknown or unexpected return values
-        print(f'WARNING: there is an unknown returned value:')
+        # Catch-all for any unexpected return value from compare()
+        print("WARNING: Unexpected return value from compare():")
         print(result)
-        print("==============================")
 
-    # Wait a few seconds before processing the next frame
-    sleep(3)
+    print("==============================")
+    sleep(3)  # Add delay between checks to reduce CPU load
+
+# Cleanup resources when done
+cap.release()
+cv2.destroyAllWindows()
