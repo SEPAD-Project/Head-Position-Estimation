@@ -53,9 +53,10 @@ while True:
         print("RESULT: Faces match ✅")
     elif result is False:
         print("RESULT: Faces do NOT match ❌")
-    elif result is None:
-        # ✅ This case handles failure in face detection or image loading
-        print("RESULT: Face not detected or image could not be loaded ⚠️")
+    elif result==1:
+        print("RESULT: Face not detected ⚠️")
+    elif result==0:
+        print("RESULT: Image could not be loaded ⚠️")
     else:
         # Catch-all for any unexpected return value from compare()
         print("WARNING: Unexpected return value from compare():")

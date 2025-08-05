@@ -47,14 +47,14 @@ def compare(ref_image_path, new_frame, app=None):
     tmp_path.unlink(missing_ok=True)
 
     if img1 is None or img2 is None:
-        return None
+        return # Code 0: Invalid images path/frames
 
     # Run face detection
     faces1 = app.get(img1)
     faces2 = app.get(img2)
 
     if not faces1 or not faces2:
-        return None
+        return 1 # Code 1: No face found
 
     # Get embeddings
     emb1 = faces1[0].embedding
