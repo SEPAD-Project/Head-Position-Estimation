@@ -4,12 +4,10 @@
 from urllib.request import urlretrieve
 import os
 import zipfile
-
-# Define local file paths for buffalo models
-BUFFALO_MODEL_PATH = r"C:\\sap-project\\.insightface\\models\\buffalo_l.zip"
+from config import INSIGHTFACE_MODEL_DIR, BUFFALO_ZIP_PATH
 
 # Ensure the target directory exists (create if not)
-os.makedirs(r"c:\\sap-project\\.insightface\\models", exist_ok=True)
+os.makedirs(INSIGHTFACE_MODEL_DIR, exist_ok=True)
 
 def download():
     """
@@ -22,11 +20,11 @@ def download():
         # Download the face recognition model
         urlretrieve(
             "https://github.com/deepinsight/insightface/releases/download/v0.7/buffalo_l.zip",
-            BUFFALO_MODEL_PATH
+            BUFFALO_ZIP_PATH
         )
 
-        with zipfile.ZipFile(BUFFALO_MODEL_PATH, 'r') as zip_ref:
-            zip_ref.extractall(BUFFALO_MODEL_PATH[:-4])
+        with zipfile.ZipFile(BUFFALO_ZIP_PATH, 'r') as zip_ref:
+            zip_ref.extractall(BUFFALO_ZIP_PATH[:-4])
 
         return True
     except Exception as e:
