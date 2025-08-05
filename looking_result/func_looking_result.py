@@ -65,12 +65,18 @@ def looking_result(ref_image_path=None, frame=None, face_mesh_obj=None):
 
     try:
         # Face verification
-        if compare(ref_image_path=ref_image_path, new_frame=frame) == False:
+        compare_result = compare(ref_image_path=ref_image_path, new_frame=frame)
+        if compare_result == False:
             return 2
+        if compare_result == 0 or compare_result == 1:
+            return compare_result
 
         # Eye status check
-        if is_eye_open(frame=frame, face_mesh_obj=face_mesh_obj) == False:
+        eye_result = is_eye_open(frame=frame, face_mesh_obj=face_mesh_obj)
+        if  eye_result == False:
             return 3
+        if eye_result == 0 or compare_result == 1:
+            return eye_result
 
         # Head orientation (yaw, pitch)
         orientation_result = yaw_pitch(frame=frame, face_mesh_obj=face_mesh_obj)
@@ -86,4 +92,3 @@ def looking_result(ref_image_path=None, frame=None, face_mesh_obj=None):
         # Only close FaceMesh if we created it here
         if internal_model:
             face_mesh_obj.close()
-
