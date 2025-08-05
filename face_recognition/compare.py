@@ -5,7 +5,12 @@ import numpy as np
 import cv2
 from pathlib import Path
 from insightface.app import FaceAnalysis
-from config import INSIGHTFACE_DIR
+import sys
+
+parent_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(parent_dir))
+
+from config import INSIGHTFACE_DIR, TMP_IMAGE_PATH
 
 
 def compare(ref_image_path, new_frame, app=None):
@@ -33,8 +38,8 @@ def compare(ref_image_path, new_frame, app=None):
         app.prepare(ctx_id=0)
 
     # Save temporary frame image (used for consistent loading format)
-    tmp_path = Path.cwd() / "tmp_frame.jpg"
-    cv2.imwrite(str(tmp_path), new_frame)
+    tmp_path = TMP_IMAGE_PATH
+    cv2.imwrite(tmp_path, new_frame)
 
     # Load and convert both images to RGB
     def load_rgb(path):
@@ -48,13 +53,13 @@ def compare(ref_image_path, new_frame, app=None):
     tmp_path.unlink(missing_ok=True)
 
     if img1 is None or img2 is None:
-        return # Code 0: Invalid images path/frames
+        return 0 # Code 0: Invalid images path/frames
 
     # Run face detection
     faces1 = app.get(img1)
     faces2 = app.get(img2)
 
-    if not faces1 or not faces2:
+    if (not faces1) or (not faces2):
         return 1 # Code 1: No face found
 
     # Get embeddings

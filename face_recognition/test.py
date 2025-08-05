@@ -6,6 +6,11 @@ from time import sleep  # Used to pause execution between frames
 from compare import compare  # Face comparison function (uses embedding similarity)
 from pathlib import Path  # For validating input path in a platform-independent way
 from insightface.app import FaceAnalysis  # For facial feature extraction and recognition
+import sys
+
+parent_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(parent_dir))
+
 from config import INSIGHTFACE_DIR
 
 # Ask user to provide the path to the reference image
@@ -50,9 +55,9 @@ while True:
     )
 
     # Handle and interpret result from the comparison
-    if result is True:
+    if result==True:
         print("RESULT: Faces match ✅")
-    elif result is False:
+    elif result==False:
         print("RESULT: Faces do NOT match ❌")
     elif result==1:
         print("RESULT: Face not detected ⚠️")
