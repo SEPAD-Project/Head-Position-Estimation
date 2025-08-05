@@ -6,6 +6,7 @@ from time import sleep  # Used to pause execution between frames
 from compare import compare  # Face comparison function (uses embedding similarity)
 from pathlib import Path  # For validating input path in a platform-independent way
 from insightface.app import FaceAnalysis  # For facial feature extraction and recognition
+from config import INSIGHTFACE_DIR
 
 # Ask user to provide the path to the reference image
 ref_image_path = input("Enter the path to the reference image: ").strip()
@@ -28,7 +29,7 @@ if not cap.isOpened():
 app = FaceAnalysis(
     name="buffalo_l",
     providers=["CPUExecutionProvider"],  # Can change to "CUDAExecutionProvider" for GPU
-    root='c:/sap-project/.insightface'
+    root=INSIGHTFACE_DIR
 )
 app.prepare(ctx_id=0)  # Prepare the model (once)
 
