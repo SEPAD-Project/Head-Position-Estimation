@@ -7,81 +7,97 @@ from numpy import ndarray
 
 def yaw_pitch(frame=None, face_mesh_obj=None):
     """
-    Estimate the yaw (left/right rotation), pitch (up/down rotation), and depth of a face in a given video frame.
+    Estimate the yaw (left/right rotation), pitch (up/down tilt), and depth of a face in a video frame.
 
-    This function uses MediaPipe's FaceMesh to detect facial landmarks and calculate:
+    This function uses MediaPipe FaceMesh to detect facial landmarks and calculate:
         - Yaw: Horizontal rotation of the head
         - Pitch: Vertical tilt of the head
         - Depth: Approximate distance of the face from the camera
 
-    Based on the estimated yaw and pitch values, the function determines whether the head is positioned
-    within a valid range. The valid range dynamically scales with the estimated depth to ensure flexibility
-    based on the user's distance from the camera.
+    Based on the yaw and pitch values, the function determines whether the head is positioned
+    within an acceptable range. The valid range dynamically scales based on the user's distance
+    (depth) from the camera to allow for flexibility.
 
     Args:
-        frame (numpy.ndarray, optional): The input video frame in BGR format. Defaults to None.
+        frame (ndarray): A single video frame in BGR format (as captured by OpenCV).
+        face_mesh_obj (mp.solutions.face_mesh.FaceMesh, optional): 
+            An optional reusable FaceMesh object. If not provided, one will be created internally
+            and closed after use. Supplying one is recommended for real-time or repeated usage to 
+            avoid memory leaks and improve performance.
 
     Returns:
-        tuple:
-            - bool: True if the head is in a valid position, False otherwise.
-            - dict: Dictionary with keys:
-                - 'yaw' (float): Horizontal head rotation
-                - 'pitch' (float): Vertical head rotation
-                - 'depth' (float): Estimated distance from the camera
-        int:
-            - 0: If the input frame is not a valid NumPy array.
-            - 1: If no face is detected in the frame.
+        tuple | int:
+            - tuple:
+                - bool: True if the head is in a valid position, False otherwise.
+                - dict: {
+                    'yaw' (float): Estimated horizontal rotation,
+                    'pitch' (float): Estimated vertical tilt,
+                    'depth' (float): Approximate distance from the camera
+                }
+            - int:
+                - 0: If the input is not a valid NumPy array
+                - 1: If no face is detected in the frame
     """
     
-    # Check if input is a valid frame
+    # Validate input frame
     if not isinstance(frame, ndarray):
-        return 0  # Return 0 to indicate invalid input format (result code 0)
+        return 0  # Code 0: Invalid input frame
 
+    # Use provided FaceMesh object or create one if needed
+    internal_model = False
     if face_mesh_obj is None:
-        face_mesh = mp.solutions.face_mesh.FaceMesh(
-        refine_landmarks=True,
-        max_num_faces=1)
-    else:
-        face_mesh = face_mesh_obj
+        face_mesh_obj = mp.solutions.face_mesh.FaceMesh(
+            refine_landmarks=True,
+            max_num_faces=1
+        )
+        internal_model = True
 
-    # Flip frame horizontally for a mirrored selfie view
+    # Flip image horizontally for a natural selfie view
     frame = cv2.flip(frame, 1)
 
-    # Convert BGR to RGB as required by MediaPipe
+    # Convert to RGB (required by MediaPipe)
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    # Detect face landmarks
-    results = face_mesh.process(rgb_frame)
+    # Run face landmark detection
+    results = face_mesh_obj.process(rgb_frame)
 
-    # Proceed only if a face is detected
+    # If face is detected, compute orientation values
     if results.multi_face_landmarks:
         for face_landmarks in results.multi_face_landmarks:
-            # Extract necessary landmarks for orientation estimation
             landmarks = face_landmarks.landmark
+
+            # Key facial landmarks used for orientation estimation
             nose_tip = landmarks[1]
             chin = landmarks[152]
             left_eye_outer = landmarks[33]
             right_eye_outer = landmarks[263]
-            nasion = landmarks[168]  # Point between the eyes
+            nasion = landmarks[168]  # Between the eyes
 
-            # Estimate depth using the Z-coordinate of the nose tip
-            depth = abs(nose_tip.z) * 100  # Scaled for easier interpretation
+            # Estimate depth (relative Z position of nose tip)
+            depth = abs(nose_tip.z) * 100  # Scaled for readability
 
-            # Calculate yaw based on horizontal asymmetry between nose and eyes
+            # Estimate yaw: difference in symmetry between nose and eyes
             yaw = ((right_eye_outer.x - nose_tip.x) - (nose_tip.x - left_eye_outer.x)) * 100
 
-            # Calculate pitch using vertical distances between chin, nose, and nasion
+            # Estimate pitch: nose position relative to chin and nasion
             pitch = ((chin.y - nose_tip.y) - (nose_tip.y - nasion.y)) * 100
 
-            # Define acceptable yaw and pitch ranges relative to depth
+            # Define acceptable yaw/pitch ranges based on depth
             yaw_min, yaw_max = -2 * depth, 2 * depth
             pitch_min, pitch_max = -0.2 * depth, 1.4 * depth
 
-            # Return whether head is in a valid position, along with computed values
+            # Clean up model if created internally
+            if internal_model:
+                face_mesh_obj.close()
+
+            # Return whether head is within acceptable orientation limits
             return yaw_min <= yaw <= yaw_max and pitch_min <= pitch <= pitch_max, {
                 'yaw': yaw,
                 'pitch': pitch,
                 'depth': depth
             }
-    else:
-        return 1  # Return 1 to indicate no face detected (result code 1)
+
+    # No face detected
+    if internal_model:
+        face_mesh_obj.close()
+    return 1  # Code 1: No face detected

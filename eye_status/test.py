@@ -5,18 +5,20 @@
 import cv2  # OpenCV for video capture and image processing
 from time import sleep  # To introduce delays between frame checks
 from func_eye_status import is_eye_open  # Function to determine if the eye is open
-import mediapipe as mp
+import mediapipe as mp  # MediaPipe for face landmark detection
 
 # Initialize the webcam (default camera: index 0)
 cap = cv2.VideoCapture(0)
 
+# Create a reusable FaceMesh object to improve performance and reduce memory usage
 face_mesh = mp.solutions.face_mesh.FaceMesh(
-refine_landmarks=True,
-max_num_faces=1)
+    refine_landmarks=True,
+    max_num_faces=1
+)
 
 # Start a loop to continuously capture and process frames
 while True:
-    # Read a frame from the webcam
+    # Capture a single frame from the webcam
     ret, frame = cap.read()
 
     # If frame capture fails, print an error and exit the loop
@@ -24,27 +26,27 @@ while True:
         print("RESULT: Can't open video capture.")
         break
 
-    # Use the eye status detection function on the current frame
+    # Detect whether the eye is open using the shared FaceMesh instance
     result = is_eye_open(frame=frame, face_mesh_obj=face_mesh)
 
-    # Handle the function's output based on its type
+    # Interpret the result returned from the is_eye_open function
     if isinstance(result, bool):
-        # If a boolean is returned, display whether the eye is open (True) or closed (False)
+        # If a boolean is returned, display whether the eye is open or closed
         print(f"RESULT: The eye is {'open' if result else 'closed'}.")
         print("==============================")
 
     elif isinstance(result, int):
-        # Handle known result codes:
+        # Handle known status codes:
         # 0 → Invalid input frame
         # 1 → No face detected
         print(f"RESULT: Status code = {result}")
         print("==============================")
 
     else:
-        # Catch any unexpected return types
+        # Handle unexpected return types
         print("WARNING: Unknown return value from is_eye_open():")
         print(result)
         print("==============================")
 
-    # Wait 3 seconds before checking the next frame
-    sleep(3)
+    # Wait a few seconds before processing the next frame to reduce CPU usage
+    sleep(1)

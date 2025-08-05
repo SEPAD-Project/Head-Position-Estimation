@@ -1,62 +1,61 @@
 # by parsasafaie
-# comments by QWEN (:
+# Comments improved by ChatGPT (:
 
 # Import necessary libraries
 import cv2  # OpenCV for video capture and image processing
 from time import sleep  # To introduce delays between iterations
-from func_looking_result import looking_result  # Import the `looking_result` function from the external module
-import mediapipe as mp
+from func_looking_result import looking_result  # Function to determine attention via face analysis
+import mediapipe as mp  # MediaPipe for face landmark detection
 
-# Initialize video capture using OpenCV
-# The argument `0` specifies the default camera (usually the built-in webcam)
+# Initialize webcam (device index 0 = default camera)
 cap = cv2.VideoCapture(0)
 
+# Create a reusable FaceMesh object to improve performance and avoid memory leaks
 face_mesh = mp.solutions.face_mesh.FaceMesh(
-refine_landmarks=True,
-max_num_faces=1)
+    refine_landmarks=True,
+    max_num_faces=1
+)
 
-# Check if the camera is opened correctly
+# Verify that the webcam opened successfully
 if not cap.isOpened():
     print("ERROR: Unable to access the camera.")
     exit()
 
-# Start an infinite loop to continuously process frames from the camera
+# Infinite loop to capture and analyze frames
 while True:
-    # Read a frame from the video capture
+    # Capture a frame from the webcam
     ret, frame = cap.read()
 
-    # Check if the frame was successfully captured
     if not ret:
         print("ERROR: Can't read the video frame.")
-        break  # Exit the loop if the frame cannot be read
+        break  # Exit if frame capture fails
 
-    # Call the `looking_result` function to determine if the student is looking at the monitor
+    # Run the attention-checking pipeline
     result = looking_result(
-        ref_image_path="ref.jpg",  # Path to the reference image for face comparison (adjust this path)
-        frame=frame,  # The current frame from the camera
-        face_mesh_obj=face_mesh
+        ref_image_path="ref.jpg",   # Path to reference face image
+        frame=frame,                # Current frame from the camera
+        face_mesh_obj=face_mesh     # Shared FaceMesh instance for efficiency
     )
 
-    # Process the result returned by the `looking_result` function
+    # Interpret the result (all return codes are integers)
     if isinstance(result, int):
-        # If the result is an integer, it represents a status code:
-        # - `0`: Invalid input (frame or reference image).
-        # - `2`: Face does not match the reference image.
-        # - `3`: Eyes are closed.
-        # - `4`: Yaw or pitch outside the valid range.
-        # - `5`: Student is looking at the monitor.
-        print(f"RESULT: {str(result)}")
+        # Status codes:
+        # 0 → Invalid input (frame or reference image not valid)
+        # 2 → Face mismatch with reference
+        # 3 → Eyes are closed
+        # 4 → Yaw/pitch angle is outside valid range
+        # 5 → All conditions met (looking at monitor)
+        print(f"RESULT: {result}")
         print("==============================")
     else:
-        # Handle unexpected return types (e.g., None or other types)
+        # Handle unexpected return types
         print("WARNING: Unknown return value:")
         print(result)
         print("==============================")
 
-    # Introduce a delay (in seconds) before processing the next frame
-    # Adjust this based on the desired frame rate or processing speed
+    # Optional delay to reduce CPU usage and simulate interval-based checks
     sleep(1)
 
-# Release the video capture object and close all OpenCV windows after the loop ends
+# Release resources after loop ends
 cap.release()
 cv2.destroyAllWindows()
