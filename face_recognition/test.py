@@ -2,7 +2,6 @@
 import sys
 from pathlib import Path
 import cv2
-from time import sleep
 from insightface.app import FaceAnalysis
 from compare import compare
 
@@ -54,21 +53,22 @@ while True:
     )
 
     # Handle and interpret result from the comparison
-    if result == True:
-        print("[RESULT] Faces match")
-    elif result == False:
-        print("[RESULT] Faces do NOT match")
-    elif result == 1:
-        print("[WARNING] Face not detected")
-    elif result == 0:
-        print("[ERROR] Image could not be loaded")
+    if isinstance(result, bool):
+        if result == True:
+            print("[RESULT] Faces match")
+        elif result == False:
+            print("[RESULT] Faces do NOT match")
+    if isinstance(result, int):
+        if result == 1:
+            print("[WARNING] Face not detected")
+        elif result == 0:
+            print("[ERROR] Image could not be loaded")
     else:
         # Catch-all for any unexpected return value from compare()
         print("[WARNING] Unexpected return value from compare():")
         print(result)
 
     print("==============================")
-    sleep(1)  # Add delay between checks to reduce CPU load
 
 # Cleanup resources when done
 cap.release()

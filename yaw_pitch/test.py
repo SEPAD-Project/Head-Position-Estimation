@@ -1,7 +1,6 @@
 # Import necessary libraries
 import cv2
 import mediapipe as mp
-from time import sleep
 from func_yaw_pitch import yaw_pitch
 
 # Initialize the default webcam (device index 0)
@@ -57,5 +56,3 @@ while True:
         print(f"Received result: {result}")
         print("==============================")
 
-    # Wait for 1 second before capturing the next frame
-    sleep(1)

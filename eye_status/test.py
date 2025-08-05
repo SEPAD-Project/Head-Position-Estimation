@@ -1,7 +1,6 @@
 # Import necessary libraries
 import cv2
 import mediapipe as mp
-from time import sleep
 from func_eye_status import is_eye_open
 
 # Initialize the webcam (default camera: index 0)
@@ -48,8 +47,6 @@ while True:
         print(result)
         print("==============================")
 
-    # Wait a few seconds before processing the next frame to reduce CPU usage
-    sleep(1)
 
 # Release the webcam and close any OpenCV windows when done
 cap.release()

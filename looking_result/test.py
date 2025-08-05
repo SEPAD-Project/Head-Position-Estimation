@@ -2,7 +2,6 @@
 import sys
 from pathlib import Path
 import cv2
-from time import sleep
 import mediapipe as mp
 from insightface.app import FaceAnalysis
 from func_looking_result import looking_result
@@ -78,8 +77,6 @@ while True:
         print(result)
         print("==============================")
 
-    # Optional delay to reduce CPU usage and simulate interval-based checks
-    sleep(1)
 
 # Release resources after loop ends
 cap.release()
