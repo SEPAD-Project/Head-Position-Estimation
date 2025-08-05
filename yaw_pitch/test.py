@@ -1,11 +1,8 @@
-# by parsasafaie
-# Comments improved by ChatGPT (:
-
 # Import necessary libraries
-import cv2  # OpenCV for video capture and image processing
-from time import sleep  # Used to introduce delay between frame processing
-from func_yaw_pitch import yaw_pitch  # Import the custom function for head orientation estimation
-import mediapipe as mp  # MediaPipe for facial landmark detection
+import cv2
+import mediapipe as mp
+from time import sleep
+from func_yaw_pitch import yaw_pitch
 
 # Initialize the default webcam (device index 0)
 cap = cv2.VideoCapture(0)
@@ -23,7 +20,7 @@ while True:
 
     # If frame capture fails, print error and exit the loop
     if not ret:
-        print("RESULT: Can't open video capture.")
+        print("[ERROR] Failed to capture frame from webcam. Exiting...")
         break
 
     # Call the head orientation function with the current frame
@@ -32,7 +29,10 @@ while True:
     # Handle return types: int (error) or tuple (status, data)
     if isinstance(result, int):
         # Error codes: 0 = invalid frame, 1 = no face detected
-        print(f"RESULT: Status code = {result}")
+        if result == 0:
+            print("[ERROR] Invalid input frame received. Please check the frame source.")
+        elif result == 1:
+            print("[WARNING] No face detected in the current frame.")
         print("==============================")
 
     elif isinstance(result, tuple) and len(result) == 2:
@@ -40,21 +40,22 @@ while True:
 
         # If the second element is a dictionary with yaw/pitch/depth, print the values
         if isinstance(data, dict):
-            print(f"yaw: {data['yaw']:.2f}")
-            print(f"pitch: {data['pitch']:.2f}")
-            print(f"depth: {data['depth']:.2f}")
-            print(f"head position valid: {'Yes' if status else 'No'}")
+            print(f"\n[INFO] Head Orientation Details:")
+            print(f"  - Yaw (Horizontal Rotation): {data['yaw']:.2f}°")
+            print(f"  - Pitch (Vertical Tilt): {data['pitch']:.2f}°")
+            print(f"  - Depth (Distance from Camera): {data['depth']:.2f} units")
+            print(f"  - Head Position Valid: {'Yes' if status else 'No'}")
             print("==============================")
         else:
-            print("WARNING: Unexpected data format from yaw_pitch()")
-            print(data)
+            print("[ERROR] Unexpected data format returned by yaw_pitch().")
+            print(f"Received data: {data}")
             print("==============================")
 
     else:
         # Catch-all for unexpected return formats
-        print("WARNING: Unknown return value from yaw_pitch()")
-        print(result)
+        print("[ERROR] Unknown return value format from yaw_pitch()")
+        print(f"Received result: {result}")
         print("==============================")
 
-    # Wait for 1 seconds before capturing the next frame
+    # Wait for 1 second before capturing the next frame
     sleep(1)

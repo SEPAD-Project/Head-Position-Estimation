@@ -1,6 +1,4 @@
-# by parsasafaie
-# Comments & documentation revised by ChatGPT (:
-
+# Import necessary libraries
 import cv2
 import mediapipe as mp
 from numpy import ndarray
@@ -39,11 +37,11 @@ def yaw_pitch(frame=None, face_mesh_obj=None):
                 - 1: If no face is detected in the frame
     """
     
-    # Validate input frame
+    # Validate input frame type
     if not isinstance(frame, ndarray):
-        return 0  # Code 0: Invalid input frame
+        return 0  # Invalid input: Code 0
 
-    # Use provided FaceMesh object or create one if needed
+    # Initialize FaceMesh model if not provided
     internal_model = False
     if face_mesh_obj is None:
         face_mesh_obj = mp.solutions.face_mesh.FaceMesh(
@@ -52,34 +50,34 @@ def yaw_pitch(frame=None, face_mesh_obj=None):
         )
         internal_model = True
 
-    # Flip image horizontally for a natural selfie view
+    # Flip the image horizontally for a natural selfie view
     frame = cv2.flip(frame, 1)
 
-    # Convert to RGB (required by MediaPipe)
+    # Convert the frame to RGB (required by MediaPipe)
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    # Run face landmark detection
+    # Run face landmark detection using MediaPipe
     results = face_mesh_obj.process(rgb_frame)
 
-    # If face is detected, compute orientation values
+    # If a face is detected, compute yaw, pitch, and depth
     if results.multi_face_landmarks:
         for face_landmarks in results.multi_face_landmarks:
             landmarks = face_landmarks.landmark
 
-            # Key facial landmarks used for orientation estimation
+            # Key facial landmarks for orientation estimation
             nose_tip = landmarks[1]
             chin = landmarks[152]
             left_eye_outer = landmarks[33]
             right_eye_outer = landmarks[263]
-            nasion = landmarks[168]  # Between the eyes
+            nasion = landmarks[168]  # Midpoint between the eyes
 
-            # Estimate depth (relative Z position of nose tip)
-            depth = abs(nose_tip.z) * 100  # Scaled for readability
+            # Estimate depth (relative Z position of the nose tip)
+            depth = abs(nose_tip.z) * 100  # Scaled for better readability
 
-            # Estimate yaw: difference in symmetry between nose and eyes
+            # Estimate yaw: Horizontal rotation using nose and eye positions
             yaw = ((right_eye_outer.x - nose_tip.x) - (nose_tip.x - left_eye_outer.x)) * 100
 
-            # Estimate pitch: nose position relative to chin and nasion
+            # Estimate pitch: Vertical tilt using nose, chin, and nasion positions
             pitch = ((chin.y - nose_tip.y) - (nose_tip.y - nasion.y)) * 100
 
             # Define acceptable yaw/pitch ranges based on depth
@@ -97,7 +95,7 @@ def yaw_pitch(frame=None, face_mesh_obj=None):
                 'depth': depth
             }
 
-    # No face detected
+    # If no face is detected
     if internal_model:
         face_mesh_obj.close()
     return 1  # Code 1: No face detected
