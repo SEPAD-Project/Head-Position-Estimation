@@ -23,8 +23,8 @@ def download():
             BUFFALO_ZIP_PATH
         )
 
-        with zipfile.ZipFile(BUFFALO_ZIP_PATH, 'r') as zip_ref:
-            zip_ref.extractall(BUFFALO_ZIP_PATH[:-4])
+        with zipfile.ZipFile((BUFFALO_ZIP_PATH), 'r') as zip_ref:
+            zip_ref.extractall(str(BUFFALO_ZIP_PATH)[:-4])
 
         return True
     except Exception as e:
