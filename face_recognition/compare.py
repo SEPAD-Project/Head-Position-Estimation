@@ -5,6 +5,7 @@ import numpy as np
 import cv2
 from pathlib import Path
 from insightface.app import FaceAnalysis
+from config import INSIGHTFACE_DIR
 
 
 def compare(ref_image_path, new_frame, app=None):
@@ -27,7 +28,7 @@ def compare(ref_image_path, new_frame, app=None):
         app = FaceAnalysis(
             name="buffalo_l",
             providers=["CPUExecutionProvider"],
-            root=str('c:/sap-project/.insightface')
+            root=INSIGHTFACE_DIR
         )
         app.prepare(ctx_id=0)
 
