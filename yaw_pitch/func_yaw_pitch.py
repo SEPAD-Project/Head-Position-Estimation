@@ -32,14 +32,14 @@ def yaw_pitch(frame=None, face_mesh_obj=None):
                     'pitch' (float): Estimated vertical tilt,
                     'depth' (float): Approximate distance from the camera
                 }
-            - int:
-                - 0: If the input is not a valid NumPy array
-                - 1: If no face is detected in the frame
+            - str:
+                - '0': If the input is not a valid NumPy array
+                - '1': If no face is detected in the frame
     """
     
     # Validate input frame type
     if not isinstance(frame, ndarray):
-        return 0  # Invalid input: Code 0
+        return '0'  # Invalid input: Code 0
 
     # Initialize FaceMesh model if not provided
     internal_model = False
@@ -89,7 +89,7 @@ def yaw_pitch(frame=None, face_mesh_obj=None):
                 face_mesh_obj.close()
 
             # Return whether head is within acceptable orientation limits
-            return yaw_min <= yaw <= yaw_max and pitch_min <= pitch <= pitch_max, {
+            return 'True' if yaw_min <= yaw <= yaw_max and pitch_min <= pitch <= pitch_max else 'False', {
                 'yaw': yaw,
                 'pitch': pitch,
                 'depth': depth
@@ -98,4 +98,4 @@ def yaw_pitch(frame=None, face_mesh_obj=None):
     # If no face is detected
     if internal_model:
         face_mesh_obj.close()
-    return 1  # Code 1: No face detected
+    return '1'  # Code 1: No face detected
