@@ -1,6 +1,7 @@
 # Import necessary libraries
 import sys
 from pathlib import Path
+from time import sleep
 import cv2
 import mediapipe as mp
 from insightface.app import FaceAnalysis
@@ -78,6 +79,7 @@ while True:
         print(result)
         print("==============================")
 
+    sleep(4)
 
 # Release resources after loop ends
 cap.release()

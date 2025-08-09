@@ -1,6 +1,7 @@
 # Import necessary libraries
 import sys
 from pathlib import Path
+from time import sleep
 import cv2
 from insightface.app import FaceAnalysis
 from compare import compare
@@ -57,7 +58,7 @@ while True:
         print("[RESULT] Faces match")
     elif result == 'False':
         print("[RESULT] Faces do NOT match")
-    if result == '1':
+    elif result == '1':
         print("[WARNING] Face not detected")
     elif result == '0':
         print("[ERROR] Image could not be loaded")
@@ -68,6 +69,8 @@ while True:
 
     print("==============================")
 
+    sleep(4)
+    
 # Cleanup resources when done
 cap.release()
 cv2.destroyAllWindows()
