@@ -25,12 +25,11 @@ def compare(ref_image_path, new_frame, app=None):
             If not provided, it will be initialized within the function.
 
     Returns:
-        bool | None:
-            - True: Faces match (cosine similarity > 0.5).
-            - False: Faces do not match.
-            - None: Face not detected in one or both images.
-            - 0: If there is an issue with the images or paths.
-            - 1: If no face is detected in either image.
+        str:
+            - 'True': Faces match (cosine similarity > 0.5).
+            - 'False': Faces do not match.
+            - '0': If there is an issue with the images or paths.
+            - '1': If no face is detected in either image.
     """
     # Prepare the model if not provided
     if app is None:
@@ -58,7 +57,7 @@ def compare(ref_image_path, new_frame, app=None):
     tmp_path.unlink(missing_ok=True)
 
     if img1 is None or img2 is None:
-        return 0  # Code 0: Invalid image path or frame
+        return '0'  # Code 0: Invalid image path or frame
 
     # Run face detection on both images
     faces1 = app.get(img1)
@@ -66,7 +65,7 @@ def compare(ref_image_path, new_frame, app=None):
 
     # Check if a face was detected in both images
     if (not faces1) or (not faces2):
-        return 1  # Code 1: No face found in one or both images
+        return '1'  # Code 1: No face found in one or both images
 
     # Get embeddings for both faces
     emb1 = faces1[0].embedding
@@ -76,4 +75,4 @@ def compare(ref_image_path, new_frame, app=None):
     sim = np.dot(emb1, emb2) / (np.linalg.norm(emb1) * np.linalg.norm(emb2))
 
     # Return whether the faces match based on the cosine similarity threshold
-    return sim > 0.5  # Faces match if similarity > 0.5
+    return 'True' if sim > 0.5 else 'False' # Faces match if similarity > 0.5
