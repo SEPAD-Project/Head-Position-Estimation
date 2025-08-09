@@ -55,16 +55,17 @@ while True:
 
     # Run the attention-checking pipeline
     result = looking_result(
-        ref_image_path=ref_image_path,  # Path to reference face image provided by the user
+        ref_image_path=str(ref_image_path.resolve()),  # Path to reference face image provided by the user
         frame=frame,                    # Current frame from the camera
         face_mesh_obj=face_mesh,        # Shared FaceMesh instance for efficiency
         app=app                         # Pre-loaded FaceAnalysis model
     )
 
-    # Interpret the result (all return codes are integers)
-    if isinstance(result, int):
+    # Interpret the result
+    if result in ('0', '1', '2', '3', '4', '5'):
         # Status codes:
         # 0 → Invalid input (frame or reference image not valid)
+        # 1 → Face not found
         # 2 → Face mismatch with reference image
         # 3 → Eyes are closed
         # 4 → Yaw/pitch angle is outside valid range

@@ -47,22 +47,20 @@ while True:
 
     # Compare the current frame to the reference image using the shared FaceAnalysis instance
     result = compare(
-        ref_image_path=ref_image_path,
+        ref_image_path=str(ref_image_path.resolve()),
         new_frame=frame,
         app=app
     )
 
     # Handle and interpret result from the comparison
-    if isinstance(result, bool):
-        if result == True:
-            print("[RESULT] Faces match")
-        elif result == False:
-            print("[RESULT] Faces do NOT match")
-    if isinstance(result, int):
-        if result == 1:
-            print("[WARNING] Face not detected")
-        elif result == 0:
-            print("[ERROR] Image could not be loaded")
+    if result == 'True':
+        print("[RESULT] Faces match")
+    elif result == 'False':
+        print("[RESULT] Faces do NOT match")
+    if result == '1':
+        print("[WARNING] Face not detected")
+    elif result == '0':
+        print("[ERROR] Image could not be loaded")
     else:
         # Catch-all for any unexpected return value from compare()
         print("[WARNING] Unexpected return value from compare():")

@@ -26,23 +26,23 @@ while True:
     result = is_eye_open(frame=frame, face_mesh_obj=face_mesh)
 
     # Interpret the result returned from the is_eye_open function
-    if isinstance(result, bool):
-        # If a boolean is returned, display whether the eye is open or closed
-        print(f"[INFO] Eye status: {'Open' if result else 'Closed'}")
+    # Display whether the eye is open or closed
+    if result == 'True' or result == 'False':
+        print(f"[INFO] Eye status: {'Open' if result=='True' else 'Closed'}")
         print("==============================")
 
-    elif isinstance(result, int):
-        # Handle known status codes:
-        # 0 → Invalid input frame (not a valid image)
-        # 1 → No face detected in the frame
-        if result == 0:
-            print("[ERROR] Invalid input frame received.")
-        elif result == 1:
-            print("[WARNING] No face detected in the frame.")
+    # Handle known status codes:
+    # 0 → Invalid input frame (not a valid image)
+    # 1 → No face detected in the frame
+    elif result == '0':
+        print("[ERROR] Invalid input frame received.")
         print("==============================")
-
+    elif result == '1':
+        print("[WARNING] No face detected in the frame.")
+        print("==============================")
+    
+    # Handle unexpected return types
     else:
-        # Handle unexpected return types
         print("[WARNING] Unknown return value from is_eye_open():")
         print(result)
         print("==============================")

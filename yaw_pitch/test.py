@@ -25,12 +25,12 @@ while True:
     # Call the head orientation function with the current frame
     result = yaw_pitch(frame=frame, face_mesh_obj=face_mesh)
 
-    # Handle return types: int (error) or tuple (status, data)
-    if isinstance(result, int):
+    # Handle return types: str (error) or tuple (status, data)
+    if isinstance(result, str):
         # Error codes: 0 = invalid frame, 1 = no face detected
-        if result == 0:
+        if result == '0':
             print("[ERROR] Invalid input frame received. Please check the frame source.")
-        elif result == 1:
+        elif result == '1':
             print("[WARNING] No face detected in the current frame.")
         print("==============================")
 
@@ -43,7 +43,7 @@ while True:
             print(f"  - Yaw (Horizontal Rotation): {data['yaw']:.2f}°")
             print(f"  - Pitch (Vertical Tilt): {data['pitch']:.2f}°")
             print(f"  - Depth (Distance from Camera): {data['depth']:.2f} units")
-            print(f"  - Head Position Valid: {'Yes' if status else 'No'}")
+            print(f"  - Head Position Valid: {'Yes' if status=='True' else 'No'}")
             print("==============================")
         else:
             print("[ERROR] Unexpected data format returned by yaw_pitch().")
