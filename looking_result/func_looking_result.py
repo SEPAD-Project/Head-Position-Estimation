@@ -39,20 +39,21 @@ def looking_result(ref_image_path=None, frame=None, face_mesh_obj=None, app=None
             Supplying one is recommended for real-time or repeated usage to avoid memory leaks and improve performance.
 
     Returns:
-        int: Status code:
-            0 → Invalid input
-            2 → Face mismatch
-            3 → Eyes closed
-            4 → Invalid head orientation
-            5 → All checks passed
+        str: Status code:
+            '0' → Invalid input
+            '1' → Face not found
+            '2' → Face mismatch
+            '3' → Eyes closed
+            '4' → Invalid head orientation
+            '5' → All checks passed
     """
 
     # Validate frame and reference path
     if not isinstance(frame, ndarray) or not isinstance(ref_image_path, str):
-        return 0  # Invalid input
+        return '0'  # Invalid input
 
     if cv2.imread(ref_image_path) is None:
-        return 0  # Invalid reference image path
+        return '0'  # Invalid reference image path
 
     # If no FaceMesh object provided, create one
     internal_model = False
@@ -75,16 +76,16 @@ def looking_result(ref_image_path=None, frame=None, face_mesh_obj=None, app=None
     try:
         # Face verification
         compare_result = compare(ref_image_path=ref_image_path, new_frame=frame, app=app)
-        if not compare_result:
-            return 2  # Face mismatch
-        if compare_result == 0 or compare_result == 1:
+        if compare_result == 'False':
+            return '2'  # Face mismatch
+        if compare_result == '0' or compare_result == '1':
             return compare_result  # Return error code from compare
 
         # Eye status check
         eye_result = is_eye_open(frame=frame, face_mesh_obj=face_mesh_obj)
-        if not eye_result:
-            return 3  # Eyes closed
-        if eye_result == 0 or eye_result == 1:
+        if eye_result == 'False':
+            return '3'  # Eyes closed
+        if eye_result == '0' or eye_result == '1':
             return eye_result  # Return error code from is_eye_open
 
         # Head orientation (yaw, pitch)
@@ -95,7 +96,7 @@ def looking_result(ref_image_path=None, frame=None, face_mesh_obj=None, app=None
 
         head_is_valid = orientation_result[0]
 
-        return 5 if head_is_valid else 4  # 5 if all checks passed, 4 if head orientation is invalid
+        return '5' if head_is_valid == 'True' else '4'  # 5 if all checks passed, 4 if head orientation is invalid
 
     finally:
         # Only close FaceMesh if we created it here
