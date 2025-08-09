@@ -22,16 +22,15 @@ def is_eye_open(frame=None, face_mesh_obj=None):
             to avoid memory leaks and improve performance.
 
     Returns:
-        bool: 
-            - True if the eye is open (EAR > threshold)
-            - False if the eye is closed (EAR <= threshold)
-        int:
-            - 0: If input is not a valid image (invalid or None).
-            - 1: If no face was detected in the input frame.
+        str: 
+            - 'True' if the eye is open (EAR > threshold)
+            - 'False' if the eye is closed (EAR <= threshold)
+            - '0': If input is not a valid image (invalid or None).
+            - '1': If no face was detected in the input frame.
     """
     # Validate input: Check if frame is a valid image
     if not isinstance(frame, ndarray):
-        return 0  # Code 0: Invalid input frame
+        return '0'  # Code 0: Invalid input frame
 
     # Use the provided FaceMesh object or create a temporary one
     internal_model = False
@@ -69,9 +68,9 @@ def is_eye_open(frame=None, face_mesh_obj=None):
                 face_mesh_obj.close()
 
             # Return whether the eye is open based on EAR
-            return ear > EAR_THRESHOLD
+            return 'True' if ear > EAR_THRESHOLD else 'False'
 
     # No face detected in the frame
     if internal_model:
         face_mesh_obj.close()
-    return 1  # Code 1: No face detected
+    return '1'  # Code 1: No face detected
