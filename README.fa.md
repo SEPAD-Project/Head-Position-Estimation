@@ -18,6 +18,8 @@ cd Head-Position-Estimation
 ```
 
 ## نصب وابستگی‌ها (Installing Dependencies)
+> نسخه پایتون توصیه شده برای این پروژه 3.10.* است.
+
 1. ایجاد محیط مجازی:
    ```bash
    python -m venv .venv

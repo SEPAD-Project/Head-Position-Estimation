@@ -18,6 +18,9 @@ cd Head-Position-Estimation
 ```
 
 ## Installing Dependencies
+
+> Recommended Python version for this project is: 3.10.*
+
 1. Create a virtual environment:
    ```bash
    python -m venv .venv
