@@ -21,7 +21,7 @@ from func_yaw_pitch import yaw_pitch
 from compare import compare
 from func_eye_status import is_eye_open
 
-def looking_result(ref_image_path=None, frame=None, face_mesh_obj=None, app=None):
+def looking_result(ref_image_path=None, frame=None, pose_face_mesh_obj=None, eye_face_mesh_obj=None, app=None):
     """
     Determines if a person (e.g., student) is attentively looking at the monitor.
 
@@ -34,7 +34,10 @@ def looking_result(ref_image_path=None, frame=None, face_mesh_obj=None, app=None
     Args:
         ref_image_path (str): Path to reference image.
         frame (ndarray): OpenCV frame in BGR format.
-        face_mesh_obj (FaceMesh, optional): An optional reusable FaceMesh object. 
+        pose_face_mesh_obj (FaceMesh, optional): An optional reusable FaceMesh object for calculate pose. 
+            If not provided, one will be created internally and closed after use. 
+            Supplying one is recommended for real-time or repeated usage to avoid memory leaks and improve performance.
+        eye_face_mesh_obj (FaceMesh, optional): An optional reusable FaceMesh object for detect eye status. 
             If not provided, one will be created internally and closed after use. 
             Supplying one is recommended for real-time or repeated usage to avoid memory leaks and improve performance.
 
@@ -55,14 +58,23 @@ def looking_result(ref_image_path=None, frame=None, face_mesh_obj=None, app=None
     if cv2.imread(ref_image_path) is None:
         return '0'  # Invalid reference image path
 
-    # If no FaceMesh object provided, create one
-    internal_model = False
-    if face_mesh_obj is None:
-        face_mesh_obj = mp.solutions.face_mesh.FaceMesh(
+    # If no FaceMesh object provided for detect eye status, create one
+    eye_internal_model = False
+    if eye_face_mesh_obj is None:
+        eye_face_mesh_obj = mp.solutions.face_mesh.FaceMesh(
             refine_landmarks=True,
             max_num_faces=1
         )
-        internal_model = True
+        eye_internal_model = True
+        
+    # If no FaceMesh object provided for calculate pose, create one
+    pose_internal_model = False
+    if pose_face_mesh_obj is None:
+        pose_face_mesh_obj = mp.solutions.face_mesh.FaceMesh(
+            refine_landmarks=True,
+            max_num_faces=1
+        )
+        pose_internal_model = True
 
     # If no FaceAnalysis object provided, create one
     if app is None:
@@ -82,14 +94,14 @@ def looking_result(ref_image_path=None, frame=None, face_mesh_obj=None, app=None
             return compare_result  # Return error code from compare
 
         # Eye status check
-        eye_result = is_eye_open(frame=frame, face_mesh_obj=face_mesh_obj)
+        eye_result = is_eye_open(frame=frame, face_mesh_obj=eye_face_mesh_obj)
         if eye_result == 'False':
             return '3'  # Eyes closed
         if eye_result == '0' or eye_result == '1':
             return eye_result  # Return error code from is_eye_open
 
         # Head orientation (yaw, pitch)
-        orientation_result = yaw_pitch(frame=frame, face_mesh_obj=face_mesh_obj)
+        orientation_result = yaw_pitch(frame=frame, face_mesh_obj=pose_face_mesh_obj)
 
         if not isinstance(orientation_result, tuple):
             return orientation_result  # Return error from yaw_pitch (0 or 1)
@@ -99,6 +111,9 @@ def looking_result(ref_image_path=None, frame=None, face_mesh_obj=None, app=None
         return '5' if head_is_valid == 'True' else '4'  # 5 if all checks passed, 4 if head orientation is invalid
 
     finally:
-        # Only close FaceMesh if we created it here
-        if internal_model:
-            face_mesh_obj.close()
+        # Only close Eye FaceMesh if we created it here
+        if eye_internal_model:
+            eye_face_mesh_obj.close()
+        # Only close Pose FaceMesh if we created it here
+        if pose_internal_model:
+            pose_face_mesh_obj.close()

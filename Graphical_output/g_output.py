@@ -36,7 +36,8 @@ if not cap.isOpened():
     sys.exit()
 
 # Create reusable FaceMesh and FaceAnalysis objects outside the loop
-face_mesh = mp.solutions.face_mesh.FaceMesh(refine_landmarks=True, max_num_faces=1)
+pose_face_mesh = mp.solutions.face_mesh.FaceMesh(refine_landmarks=True, max_num_faces=1)
+eye_face_mesh = mp.solutions.face_mesh.FaceMesh(refine_landmarks=True, max_num_faces=1)
 app = FaceAnalysis(
     name="buffalo_l",
     providers=["CPUExecutionProvider"],  # Can change to "CUDAExecutionProvider" for GPU
@@ -54,10 +55,10 @@ while True:
         break
 
     # Perform eye status detection (open or closed)
-    eye_result = is_eye_open(frame, face_mesh_obj=face_mesh)
+    eye_result = is_eye_open(frame, face_mesh_obj=eye_face_mesh)
 
     # Perform yaw and pitch estimation (head orientation)
-    yaw_pitch_result = yaw_pitch(frame, face_mesh_obj=face_mesh)
+    yaw_pitch_result = yaw_pitch(frame, face_mesh_obj=pose_face_mesh)
 
     # Handle the case where yaw_pitch might return a tuple, and extract the first value
     try:
